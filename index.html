@@ -124,19 +124,18 @@
           <input type="text" id="picNameOther" placeholder="Ketik nama..." style="display:none; margin-top: 12px;">
         </div>
         
-        <!-- TOMBOL KOTAK BESAR UNTUK FOTO DRIVER -->
-        <div class="form-group">
+        <!-- TOMBOL KOTAK BESAR UNTUK FOTO DRIVER (SUDAH DIPERBAIKI ANTI-NGEBUG) -->
+        <div class="form-group" style="position: relative;">
           <label><i data-feather="image"></i> Foto Bukti Paket / Driver</label>
           
-          <!-- PERBAIKAN: Menggunakan tag <label> bawaan HTML agar 100% bisa diklik di HP -->
+          <!-- Tombol Asli (Dibuat transparan dan super kecil agar tidak diblokir OS HP) -->
+          <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" capture="environment" required onchange="updateFileName(this)" style="opacity: 0; position: absolute; width: 1px; height: 1px; z-index: -1;">
+          
+          <!-- Tombol Custom yang menutupi tombol asli -->
           <label id="uploadBox" for="packagePhoto" class="custom-file-upload">
             <i data-feather="camera" style="width: 32px; height: 32px; color: var(--aeris-maroon);"></i>
             <span id="fileNameDisplay">Klik di sini untuk Membuka Kamera</span>
           </label>
-          
-          <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" capture="environment" required style="display:none;" onchange="updateFileName(this)">
-        </div>          
-          <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" capture="environment" required style="display:none;" onchange="updateFileName(this)">
         </div>
 
         <button type="submit" id="submitBtn" class="submit-btn"><i data-feather="send" id="btnIcon"></i><span id="btnText">Kirim Report</span></button>
@@ -194,6 +193,27 @@
     function startCamera() {
       document.getElementById('cameraError').style.display = 'none';
       document.getElementById('startCameraBtn').style.display = 'none';
+      
+      // Pancing pop-up izin kamera dengan aman
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(function(stream) {
+             // Matikan kamera pancingan
+             stream.getTracks().forEach(track => track.stop());
+             // Lanjut nyalakan scanner
+             jalankanScanner();
+          })
+          .catch(function(err) {
+             // JIKA DITOLAK HP, MUNCULKAN TOMBOL ANTI-GAGAL
+             document.getElementById('cameraError').style.display = 'block';
+             document.getElementById('startCameraBtn').style.display = 'flex';
+          });
+      } else {
+         jalankanScanner();
+      }
+    }
+
+    function jalankanScanner() {
       document.getElementById('stopCameraBtn').style.display = 'flex';
       document.getElementById('reader').style.display = 'block';
 

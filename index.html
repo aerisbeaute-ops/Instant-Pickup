@@ -61,7 +61,7 @@
       <div id="clockDisplay"><i data-feather="clock" stroke-width="2.5"></i><span id="timeText">Memuat waktu...</span></div>
     </div>
 
-    <!-- TOMBOL PING PINTAR (MENANYAKAN NOMOR ORDER) -->
+    <!-- TOMBOL PING PINTAR -->
     <button type="button" class="ping-top-btn" id="pingBtn" onclick="pingPackerSistem()" title="Ping Tim Packer">
       <i data-feather="bell" id="pingIcon"></i> <span id="pingText">Ping Tim Packer</span>
     </button>
@@ -123,7 +123,6 @@
           <input type="text" id="picNameOther" placeholder="Ketik nama..." style="display:none; margin-top: 12px;">
         </div>
         
-        <!-- DIKEMBALIKAN KE KODE ASLI BAWAANMU AGAR 100% TEMBUS IPHONE -->
         <div class="form-group">
           <label for="packagePhoto"><i data-feather="image"></i> Foto Bukti Paket</label>
           <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" required>
@@ -336,11 +335,11 @@
     }
 
     // ========================================================
-    // PING PINTAR (MENANYAKAN NOMOR RESI/ORDER)
+    // PING PINTAR (LANGSUNG TEMBAK KE BACKEND TANPA WHATSAPP)
     // ========================================================
     function pingPackerSistem() {
       // 1. Tanya PIC nomor ordernya
-      var resiDitunggu = prompt("🚨 MASUKKAN NOMOR ORDER/RESI:\n\nTanya ke driver nomor order berapa yang dia tunggu, lalu ketik di bawah ini agar Packer bisa langsung mencarinya:");
+      var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver. Notifikasi akan langsung dikirim ke sistem Packer:");
       
       // 2. Kalau PIC klik batal atau kosongin, batalkan ping
       if (resiDitunggu === null || resiDitunggu.trim() === "") {
@@ -349,26 +348,21 @@
 
       var btn = document.getElementById('pingBtn');
       var txt = document.getElementById('pingText');
-      btn.disabled = true; txt.innerText = 'Mengirim Sinyal...';
+      btn.disabled = true; txt.innerText = 'Mengirim Notifikasi...';
       
-      // 3. Bunyikan sirine di sistem packer (tetap jalan di background)
+      // 3. Kirim ping BESERTA nomor order langsung ke backend Google Apps Script
       fetch(scriptURL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'ping' })
+        body: JSON.stringify({ action: 'ping', orderNumber: resiDitunggu.trim() })
       })
       .then(() => {
-        txt.innerText = 'Pesan Darurat Terkirim!';
-        
-        // 4. Bikin pesan WA yang spesifik nyebutin nomor ordernya!
-        var pesan = "🚨 *URGENT - DRIVER INSTANT MENUNGGU!*%0A%0ATolong segera siapkan dan turunkan paket dengan nomor order/resi:%0A👉 *" + encodeURIComponent(resiDitunggu) + "* 👈%0A%0ADrivernya sudah ada di depan!";
-        
-        window.open("https://wa.me/6285156024369?text=" + pesan, "_blank");
-        
-        // Opsional: Kirim ke nomor kedua
-        setTimeout(() => { window.open("https://wa.me/628577624822?text=" + pesan, "_blank"); }, 1000);
-        
+        txt.innerText = 'Notifikasi Masuk ke Packer!';
         setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 5000);
+      })
+      .catch(err => {
+        txt.innerText = 'Gagal Mengirim!';
+        setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 3000);
       });
     }
   </script>

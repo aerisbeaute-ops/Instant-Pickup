@@ -23,13 +23,15 @@
     .form-group { margin-bottom: 24px; }
     label { display: flex; align-items: center; gap: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; color: var(--text-light); margin-bottom: 10px; }
     label svg { width: 16px; height: 16px; color: var(--aeris-maroon); stroke-width: 2.5; }
-    input[type="text"], select, textarea { width: 100%; padding: 18px; background-color: var(--input-bg); border: 2px solid transparent; border-radius: 16px; box-sizing: border-box; font-size: 16px; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dark); font-weight: 600; transition: all 0.3s ease; }
+    input[type="text"], select, textarea, input[type="file"] { width: 100%; padding: 18px; background-color: var(--input-bg); border: 2px solid transparent; border-radius: 16px; box-sizing: border-box; font-size: 16px; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dark); font-weight: 600; transition: all 0.3s ease; }
     textarea.giant-input { font-size: 15px; line-height: 1.6; resize: vertical; background-color: #F1F5F9; color: var(--text-dark); border: 2px dashed #CBD5E1;}
     input:focus, select:focus, textarea:focus { outline: none; background-color: var(--surface); border-color: var(--aeris-maroon); box-shadow: 0 0 0 4px rgba(112, 20, 3, 0.1); }
     .camera-btn { width: 100%; padding: 15px; background-color: #1E293B; color: white; border: none; border-radius: 16px; font-size: 15px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.3s; }
     .camera-btn:hover { background-color: #334155; }
     #reader { width: 100%; margin-top: 10px; display: none; border-radius: 16px; overflow: hidden; border: 2px solid var(--aeris-maroon); background-color: #000; }
     #cameraError { display: none; background-color: #FEF2F2; color: #991B1B; padding: 16px; border-radius: 16px; border: 1px solid #FECACA; font-size: 13px; font-weight: 600; margin-top: 10px; line-height: 1.5; }
+    input[type="file"] { padding: 14px; font-size: 14px; font-weight: 500; color: var(--text-light); }
+    input[type="file"]::file-selector-button { background-color: var(--surface); border: 1px solid #E2E8F0; border-radius: 50px; padding: 10px 20px; margin-right: 14px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dark); cursor: pointer; }
     .help-text { font-size: 12px; color: var(--text-light); margin-top: 10px; font-weight: 500; display: block;}
     button.submit-btn { width: 100%; padding: 20px; background: linear-gradient(135deg, var(--aeris-maroon), var(--aeris-maroon-hover)); color: white; border: none; border-radius: 50px; font-size: 16px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px; box-shadow: 0 10px 20px rgba(112, 20, 3, 0.25); transition: 0.3s; }
     .ping-top-btn { width: 100%; background-color: #EF4444; color: white; padding: 18px; border-radius: 16px; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3); border: none; cursor: pointer; font-family: inherit; margin-bottom: 24px; transition: all 0.3s ease; }
@@ -43,11 +45,6 @@
     .scan-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #10B981; color: white; padding: 12px 24px; border-radius: 50px; font-weight: 800; font-size: 15px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); z-index: 9999; display: flex; align-items: center; gap: 8px; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
     .scan-toast.show { opacity: 1; visibility: visible; top: 50px; }
     .scan-toast svg { width: 20px; height: 20px; }
-
-    /* TOMBOL KOTAK BESAR UNTUK FOTO DRIVER */
-    .custom-file-upload { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px 20px; background-color: var(--input-bg); border: 2px dashed #CBD5E1; border-radius: 16px; transition: 0.3s; color: var(--text-dark); font-weight: 700; font-size: 15px; text-align: center; gap: 12px; }
-    .custom-file-upload:hover { border-color: var(--aeris-maroon); background-color: #F1F5F9; }
-    .custom-file-upload.has-file { border-color: #10B981; background-color: #ECFDF5; color: #065F46; }
   </style>
 </head>
 <body>
@@ -83,6 +80,7 @@
           
           <div id="reader"></div>
           
+          <!-- SOLUSI ANTI-GAGAL JIKA KAMERA DIBLOKIR -->
           <div id="cameraError">
             <b>🚨 Kamera Live Diblokir oleh HP Kamu!</b><br><br>
             Jangan khawatir! Klik tombol hijau di bawah ini untuk <b>Memfoto Resi</b>. Sistem akan mengekstrak barcode dari foto tersebut secara otomatis. 👇<br><br>
@@ -125,17 +123,10 @@
           <input type="text" id="picNameOther" placeholder="Ketik nama..." style="display:none; margin-top: 12px;">
         </div>
         
-        <!-- JURUS HACKER: KOTAK FOTO MELAR & TRANSPARAN (DIJAMIN 100% BISA DIKLIK) -->
+        <!-- DIKEMBALIKAN KE KODE ASLI BAWAANMU (PASTI BISA DIKLIK) -->
         <div class="form-group">
-          <label><i data-feather="image"></i> Foto Bukti Paket / Driver</label>
-          
-          <div id="uploadBox" class="custom-file-upload" style="position: relative; overflow: hidden;">
-            <!-- INI TOMBOL ASLINYA, DITARIK 100% SUPAYA BISA DIKLIK DI SELURUH AREA KOTAK -->
-            <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" capture="environment" required onchange="updateFileName(this)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 999; cursor: pointer;">
-            
-            <i data-feather="camera" style="width: 32px; height: 32px; color: var(--aeris-maroon);"></i>
-            <span id="fileNameDisplay">Klik di sini untuk Membuka Kamera</span>
-          </div>
+          <label for="packagePhoto"><i data-feather="image"></i> Foto Bukti Paket</label>
+          <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" capture="environment" required>
         </div>
 
         <button type="submit" id="submitBtn" class="submit-btn"><i data-feather="send" id="btnIcon"></i><span id="btnText">Kirim Report</span></button>
@@ -156,18 +147,6 @@
       document.getElementById('timeText').innerText = now.toLocaleDateString('id-ID', options) + ' • ' + now.toLocaleTimeString('id-ID', { hour12: false });
     }
     setInterval(updateClock, 1000); updateClock(); 
-
-    function updateFileName(input) {
-      var display = document.getElementById('fileNameDisplay');
-      var box = document.getElementById('uploadBox');
-      if (input.files && input.files.length > 0) {
-        display.innerText = "✅ Foto Berhasil Diambil!";
-        box.classList.add('has-file');
-      } else {
-        display.innerText = "Klik di sini untuk Membuka Kamera";
-        box.classList.remove('has-file');
-      }
-    }
 
     let html5QrCode;
 
@@ -194,17 +173,13 @@
       document.getElementById('cameraError').style.display = 'none';
       document.getElementById('startCameraBtn').style.display = 'none';
       
-      // Pancing pop-up izin kamera dengan aman
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ video: true })
           .then(function(stream) {
-             // Matikan kamera pancingan
              stream.getTracks().forEach(track => track.stop());
-             // Lanjut nyalakan scanner
              jalankanScanner();
           })
           .catch(function(err) {
-             // JIKA DITOLAK HP, MUNCULKAN TOMBOL ANTI-GAGAL
              document.getElementById('cameraError').style.display = 'block';
              document.getElementById('startCameraBtn').style.display = 'flex';
           });
@@ -226,7 +201,6 @@
         function(decodedText) { triggerSuksesScan(decodedText); },
         function(errorMessage) { /* Abaikan error cari fokus */ }
       ).catch(function(err) {
-        // JIKA DITOLAK HP, MUNCULKAN TOMBOL ANTI-GAGAL
         document.getElementById('cameraError').style.display = 'block';
         stopCamera();
       });
@@ -242,7 +216,6 @@
       }
     }
 
-    // FUNGSI BARU: BACA BARCODE DARI FOTO KAMERA BAWAAN
     function scanResiDariFoto(event) {
       if (event.target.files.length == 0) return;
       var file = event.target.files[0];
@@ -258,12 +231,12 @@
            triggerSuksesScan(decodedText);
            showStatus('success', '✅ Barcode berhasil dibaca!');
            setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 3000);
-           event.target.value = ''; // Reset
+           event.target.value = ''; 
         })
         .catch(err => {
            showStatus('error', '❌ Barcode tidak terbaca! Pastikan foto terang dan fokus pada resi.');
            setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 5000);
-           event.target.value = ''; // Reset
+           event.target.value = ''; 
         });
     }
 
@@ -351,12 +324,6 @@
                showStatus('success', data.message); 
                document.getElementById('pickupForm').reset();
                document.getElementById('picNameOther').style.display = 'none'; 
-               
-               // Reset tampilan kotak foto
-               var box = document.getElementById('uploadBox');
-               var display = document.getElementById('fileNameDisplay');
-               box.classList.remove('has-file');
-               display.innerText = "Klik di sini untuk Membuka Kamera";
                
                setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 5000);
              } else { showStatus('error', data.message); }

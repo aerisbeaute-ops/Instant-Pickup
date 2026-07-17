@@ -354,7 +354,7 @@
       fetch(scriptURL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'ping', orderNumber: resiDitunggu.trim() })
+        body: JSON.stringify({ action: 'ping', pickupCode: resiDitunggu.trim() })
       })
       .then(() => {
         txt.innerText = 'Notifikasi Masuk ke Packer!';

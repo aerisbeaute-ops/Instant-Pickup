@@ -45,7 +45,7 @@
     .scan-toast svg { width: 20px; height: 20px; }
 
     /* TOMBOL KOTAK BESAR UNTUK FOTO DRIVER */
-    .custom-file-upload { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px 20px; background-color: var(--input-bg); border: 2px dashed #CBD5E1; border-radius: 16px; cursor: pointer; transition: 0.3s; color: var(--text-dark); font-weight: 700; font-size: 15px; text-align: center; gap: 12px; }
+    .custom-file-upload { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px 20px; background-color: var(--input-bg); border: 2px dashed #CBD5E1; border-radius: 16px; transition: 0.3s; color: var(--text-dark); font-weight: 700; font-size: 15px; text-align: center; gap: 12px; }
     .custom-file-upload:hover { border-color: var(--aeris-maroon); background-color: #F1F5F9; }
     .custom-file-upload.has-file { border-color: #10B981; background-color: #ECFDF5; color: #065F46; }
   </style>
@@ -83,15 +83,16 @@
           
           <div id="reader"></div>
           
-          <!-- SOLUSI ANTI-GAGAL JIKA KAMERA DIBLOKIR -->
           <div id="cameraError">
             <b>🚨 Kamera Live Diblokir oleh HP Kamu!</b><br><br>
             Jangan khawatir! Klik tombol hijau di bawah ini untuk <b>Memfoto Resi</b>. Sistem akan mengekstrak barcode dari foto tersebut secara otomatis. 👇<br><br>
             
-            <button type="button" onclick="document.getElementById('resiFallbackUpload').click()" class="camera-btn" style="background-color: #10B981;">
-              <i data-feather="camera"></i> Jepret Foto Resi (Anti-Gagal)
-            </button>
-            <input type="file" id="resiFallbackUpload" accept="image/*" capture="environment" style="display:none;" onchange="scanResiDariFoto(event)">
+            <div style="position: relative; overflow: hidden; border-radius: 16px;">
+              <input type="file" accept="image/*" capture="environment" onchange="scanResiDariFoto(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 999; cursor: pointer;">
+              <button type="button" class="camera-btn" style="background-color: #10B981; pointer-events: none;">
+                <i data-feather="camera"></i> Jepret Foto Resi (Anti-Gagal)
+              </button>
+            </div>
           </div>
           
           <span class="help-text">💡 <b>Tips:</b> Jika kamera terbuka, jangan terlalu dekat! Jauhkan kamera sedikit agar tidak buram saat scan.</span>
@@ -124,18 +125,17 @@
           <input type="text" id="picNameOther" placeholder="Ketik nama..." style="display:none; margin-top: 12px;">
         </div>
         
-        <!-- TOMBOL KOTAK BESAR UNTUK FOTO DRIVER (SUDAH DIPERBAIKI ANTI-NGEBUG) -->
-        <div class="form-group" style="position: relative;">
+        <!-- JURUS HACKER: KOTAK FOTO MELAR & TRANSPARAN (DIJAMIN 100% BISA DIKLIK) -->
+        <div class="form-group">
           <label><i data-feather="image"></i> Foto Bukti Paket / Driver</label>
           
-          <!-- Tombol Asli (Dibuat transparan dan super kecil agar tidak diblokir OS HP) -->
-          <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" capture="environment" required onchange="updateFileName(this)" style="opacity: 0; position: absolute; width: 1px; height: 1px; z-index: -1;">
-          
-          <!-- Tombol Custom yang menutupi tombol asli -->
-          <label id="uploadBox" for="packagePhoto" class="custom-file-upload">
+          <div id="uploadBox" class="custom-file-upload" style="position: relative; overflow: hidden;">
+            <!-- INI TOMBOL ASLINYA, DITARIK 100% SUPAYA BISA DIKLIK DI SELURUH AREA KOTAK -->
+            <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" capture="environment" required onchange="updateFileName(this)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 999; cursor: pointer;">
+            
             <i data-feather="camera" style="width: 32px; height: 32px; color: var(--aeris-maroon);"></i>
             <span id="fileNameDisplay">Klik di sini untuk Membuka Kamera</span>
-          </label>
+          </div>
         </div>
 
         <button type="submit" id="submitBtn" class="submit-btn"><i data-feather="send" id="btnIcon"></i><span id="btnText">Kirim Report</span></button>

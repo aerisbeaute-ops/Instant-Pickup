@@ -127,10 +127,13 @@
         <!-- TOMBOL KOTAK BESAR UNTUK FOTO DRIVER -->
         <div class="form-group">
           <label><i data-feather="image"></i> Foto Bukti Paket / Driver</label>
-          <div id="uploadBox" class="custom-file-upload" onclick="document.getElementById('packagePhoto').click()">
+          
+          <!-- PERBAIKAN: Menggunakan tag <label> bawaan HTML agar 100% bisa diklik di HP -->
+          <label id="uploadBox" for="packagePhoto" class="custom-file-upload">
             <i data-feather="camera" style="width: 32px; height: 32px; color: var(--aeris-maroon);"></i>
             <span id="fileNameDisplay">Klik di sini untuk Membuka Kamera</span>
-          </div>
+          </label>
+          
           <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" capture="environment" required style="display:none;" onchange="updateFileName(this)">
         </div>
 

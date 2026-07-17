@@ -11,7 +11,6 @@
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   
   <style>
-    /* CSS SAMA PERSIS SEPERTI SEBELUMNYA */
     :root { --aeris-maroon: #701403; --aeris-maroon-hover: #8A1904; --bg-body: #F3F5F9; --surface: #FFFFFF; --text-dark: #1E293B; --text-light: #64748B; --input-bg: #F8FAFC; }
     body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-body); color: var(--text-dark); margin: 0; padding: 24px 16px 40px 16px; display: flex; justify-content: center; }
     .dashboard-wrapper { width: 100%; max-width: 450px; }
@@ -41,9 +40,19 @@
     .badge-loading { display: flex; background-color: #EFF6FF; color: #1E3A8A; border: 1px solid #BFDBFE; }
     .badge-success { display: flex; background-color: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
     .badge-error { display: flex; background-color: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
+    
+    /* STYLE UNTUK POP-UP BERHASIL SCAN */
+    .scan-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #10B981; color: white; padding: 12px 24px; border-radius: 50px; font-weight: 800; font-size: 15px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); z-index: 9999; display: flex; align-items: center; gap: 8px; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+    .scan-toast.show { opacity: 1; visibility: visible; top: 50px; }
+    .scan-toast svg { width: 20px; height: 20px; }
   </style>
 </head>
 <body>
+
+  <!-- ELEMEN POP-UP TOAST -->
+  <div id="scanToast" class="scan-toast">
+    <i data-feather="check-circle"></i> Berhasil! Lanjut...
+  </div>
 
   <div class="dashboard-wrapper">
     <div class="card card-header">
@@ -52,7 +61,6 @@
       <div id="clockDisplay"><i data-feather="clock" stroke-width="2.5"></i><span id="timeText">Memuat waktu...</span></div>
     </div>
 
-    <!-- TOMBOL PING -->
     <button type="button" class="ping-top-btn" id="pingBtn" onclick="pingPackerSistem()" title="Ping Tim Packer">
       <i data-feather="bell" id="pingIcon"></i> <span id="pingText">Ping Tim Packer</span>
     </button>
@@ -60,7 +68,6 @@
     <div class="card">
       <form id="pickupForm" onsubmit="handleFormSubmit(event)">
         
-        <!-- FITUR KAMERA LIVE -->
         <div class="form-group">
           <label><i data-feather="camera"></i> Scan Resi via Kamera HP</label>
           <button type="button" id="startCameraBtn" onclick="startCamera()" class="camera-btn">
@@ -71,18 +78,13 @@
           </button>
           
           <div id="reader"></div>
-
-          <div id="cameraError">
-            <b>🚨 Gagal Akses Kamera!</b><br><br>
-            Pastikan kamu klik <b>Allow/Izinkan</b> saat pop-up muncul.
-          </div>
-          
+          <div id="cameraError"><b>🚨 Gagal Akses Kamera!</b><br><br>Pastikan kamu klik <b>Allow/Izinkan</b> saat pop-up muncul.</div>
           <span class="help-text">Arahkan kamera ke barcode resi. Hasilnya otomatis terketik di kotak bawah.</span>
         </div>
 
         <div class="form-group">
           <label for="orderNumber"><i data-feather="list"></i> Daftar Resi / Order Number</label>
-          <textarea id="orderNumber" class="giant-input" name="orderNumber" required rows="4" placeholder="Hasil scan kamera akan muncul di sini."></textarea>
+          <textarea id="orderNumber" class="giant-input" name="orderNumber" required rows="4" placeholder="Hasil scan kamera akan muncul di sini otomatis."></textarea>
         </div>
 
         <div class="form-group">
@@ -119,9 +121,9 @@
   <script>
     feather.replace();
     // ==========================================
-    // MASUKKAN LINK GOOGLE APPS SCRIPT KAMU DI SINI
+    // MASUKKAN LINK GOOGLE APPS SCRIPT KAMU DI SINI (JANGAN SAMPAI HILANG)
     // ==========================================
-    const scriptURL = 'https://script.google.com/home/projects/1iNY-AhWCdqzaIzPpMixtKXm_jCwCo-FdIua7RinPaxn33OyVTUn9ckuf/edit'; 
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwBUqiOOTC_L_j8EmnkT1CHdRVpRlkggTNYC8R5DYAOOUgX1OfCKkCudEcfGj-IQQ3u/exec'; 
     
     function updateClock() {
       var now = new Date();
@@ -148,6 +150,12 @@
           var orderTextArea = document.getElementById('orderNumber');
           if (!orderTextArea.value.includes(decodedText)) {
             orderTextArea.value = orderTextArea.value === "" ? decodedText : orderTextArea.value + "\n" + decodedText;
+            
+            // MUNCULKAN POP UP BERHASIL DI SINI
+            var toast = document.getElementById('scanToast');
+            toast.classList.add('show');
+            setTimeout(function() { toast.classList.remove('show'); }, 1500); // Hilang setelah 1.5 detik
+
             if ('speechSynthesis' in window) {
               var utterance = new SpeechSynthesisUtterance("Oke");
               utterance.lang = 'id-ID'; utterance.rate = 1.5;

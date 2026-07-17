@@ -61,7 +61,7 @@
       <div id="clockDisplay"><i data-feather="clock" stroke-width="2.5"></i><span id="timeText">Memuat waktu...</span></div>
     </div>
 
-    <!-- TOMBOL PING -->
+    <!-- TOMBOL PING PINTAR (MENANYAKAN NOMOR ORDER) -->
     <button type="button" class="ping-top-btn" id="pingBtn" onclick="pingPackerSistem()" title="Ping Tim Packer">
       <i data-feather="bell" id="pingIcon"></i> <span id="pingText">Ping Tim Packer</span>
     </button>
@@ -80,13 +80,12 @@
           
           <div id="reader"></div>
           
-          <!-- SOLUSI ANTI-GAGAL -->
+          <!-- SOLUSI ANTI-GAGAL JIKA KAMERA DIBLOKIR -->
           <div id="cameraError">
             <b>🚨 Kamera Live Diblokir oleh HP Kamu!</b><br><br>
             Jangan khawatir! Klik tombol hijau di bawah ini untuk <b>Memfoto Resi</b>. Sistem akan mengekstrak barcode dari foto tersebut secara otomatis. 👇<br><br>
             
             <div style="position: relative; overflow: hidden; border-radius: 16px;">
-              <!-- Dihapus capture=environment agar tembus di iPhone -->
               <input type="file" accept="image/*" onchange="scanResiDariFoto(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 999; cursor: pointer;">
               <button type="button" class="camera-btn" style="background-color: #10B981; pointer-events: none;">
                 <i data-feather="camera"></i> Jepret Foto Resi (Anti-Gagal)
@@ -124,7 +123,7 @@
           <input type="text" id="picNameOther" placeholder="Ketik nama..." style="display:none; margin-top: 12px;">
         </div>
         
-        <!-- DIKEMBALIKAN KE KODE ASLI BAWAANMU DAN DIHAPUS CAPTURE=ENVIRONMENT-NYA -->
+        <!-- DIKEMBALIKAN KE KODE ASLI BAWAANMU AGAR 100% TEMBUS IPHONE -->
         <div class="form-group">
           <label for="packagePhoto"><i data-feather="image"></i> Foto Bukti Paket</label>
           <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" required>
@@ -336,21 +335,39 @@
       };
     }
 
+    // ========================================================
+    // PING PINTAR (MENANYAKAN NOMOR RESI/ORDER)
+    // ========================================================
     function pingPackerSistem() {
+      // 1. Tanya PIC nomor ordernya
+      var resiDitunggu = prompt("🚨 MASUKKAN NOMOR ORDER/RESI:\n\nTanya ke driver nomor order berapa yang dia tunggu, lalu ketik di bawah ini agar Packer bisa langsung mencarinya:");
+      
+      // 2. Kalau PIC klik batal atau kosongin, batalkan ping
+      if (resiDitunggu === null || resiDitunggu.trim() === "") {
+        return; 
+      }
+
       var btn = document.getElementById('pingBtn');
       var txt = document.getElementById('pingText');
       btn.disabled = true; txt.innerText = 'Mengirim Sinyal...';
       
+      // 3. Bunyikan sirine di sistem packer (tetap jalan di background)
       fetch(scriptURL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: 'ping' })
       })
       .then(() => {
-        txt.innerText = 'Sistem Packer Berbunyi!';
-        var pesanWA = "Halo%20Tim%20Packing,%20driver%20instant%20sudah%20di%20depan%20tapi%20paket%20belum%20turun!";
-        window.open("https://wa.me/6285156024269?text=" + pesanWA, "_blank");
-        setTimeout(() => { window.open("https://wa.me/628577624822?text=" + pesanWA, "_blank"); }, 1000);
+        txt.innerText = 'Pesan Darurat Terkirim!';
+        
+        // 4. Bikin pesan WA yang spesifik nyebutin nomor ordernya!
+        var pesan = "🚨 *URGENT - DRIVER INSTANT MENUNGGU!*%0A%0ATolong segera siapkan dan turunkan paket dengan nomor order/resi:%0A👉 *" + encodeURIComponent(resiDitunggu) + "* 👈%0A%0ADrivernya sudah ada di depan!";
+        
+        window.open("https://wa.me/6285156024369?text=" + pesan, "_blank");
+        
+        // Opsional: Kirim ke nomor kedua
+        setTimeout(() => { window.open("https://wa.me/628577624822?text=" + pesan, "_blank"); }, 1000);
+        
         setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 5000);
       });
     }

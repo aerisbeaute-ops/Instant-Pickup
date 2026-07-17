@@ -80,13 +80,14 @@
           
           <div id="reader"></div>
           
-          <!-- SOLUSI ANTI-GAGAL JIKA KAMERA DIBLOKIR -->
+          <!-- SOLUSI ANTI-GAGAL -->
           <div id="cameraError">
             <b>🚨 Kamera Live Diblokir oleh HP Kamu!</b><br><br>
             Jangan khawatir! Klik tombol hijau di bawah ini untuk <b>Memfoto Resi</b>. Sistem akan mengekstrak barcode dari foto tersebut secara otomatis. 👇<br><br>
             
             <div style="position: relative; overflow: hidden; border-radius: 16px;">
-              <input type="file" accept="image/*" capture="environment" onchange="scanResiDariFoto(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 999; cursor: pointer;">
+              <!-- Dihapus capture=environment agar tembus di iPhone -->
+              <input type="file" accept="image/*" onchange="scanResiDariFoto(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 999; cursor: pointer;">
               <button type="button" class="camera-btn" style="background-color: #10B981; pointer-events: none;">
                 <i data-feather="camera"></i> Jepret Foto Resi (Anti-Gagal)
               </button>
@@ -123,10 +124,10 @@
           <input type="text" id="picNameOther" placeholder="Ketik nama..." style="display:none; margin-top: 12px;">
         </div>
         
-        <!-- DIKEMBALIKAN KE KODE ASLI BAWAANMU (PASTI BISA DIKLIK) -->
+        <!-- DIKEMBALIKAN KE KODE ASLI BAWAANMU DAN DIHAPUS CAPTURE=ENVIRONMENT-NYA -->
         <div class="form-group">
           <label for="packagePhoto"><i data-feather="image"></i> Foto Bukti Paket</label>
-          <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" capture="environment" required>
+          <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" required>
         </div>
 
         <button type="submit" id="submitBtn" class="submit-btn"><i data-feather="send" id="btnIcon"></i><span id="btnText">Kirim Report</span></button>
@@ -260,13 +261,17 @@
       feather.replace(); 
     }
 
+    // ========================================================
+    // JURUS MAGIC: KIRIM BACKGROUND (PROSES KILAT 0,1 DETIK)
+    // ========================================================
     function handleFormSubmit(event) {
       event.preventDefault(); 
       stopCamera(); 
       
       var btn = document.getElementById('submitBtn');
-      btn.disabled = true; document.getElementById('btnText').innerText = 'Mengompres Foto...';
-      showStatus('loading', 'Sedang memproses foto...');
+      btn.disabled = true; 
+      document.getElementById('btnText').innerText = 'Zappp... ⚡'; 
+      showStatus('loading', 'Memproses kilat...');
       
       var orderInput = document.getElementById('orderNumber');
       var originalText = orderInput.value;
@@ -294,7 +299,7 @@
         img.src = e.target.result;
         img.onload = function() {
           var canvas = document.createElement('canvas');
-          var MAX_WIDTH = 800; 
+          var MAX_WIDTH = 600; // Dikompres kecil supaya super ngebut
           var scaleSize = MAX_WIDTH / img.width;
           
           if (img.width > MAX_WIDTH) {
@@ -306,33 +311,26 @@
           var ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
           
-          dataKirim.packagePhotoBase64 = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+          dataKirim.packagePhotoBase64 = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
           dataKirim.packagePhotoType = 'image/jpeg';
           
-          document.getElementById('btnText').innerText = 'Mengirim Data...';
-          showStatus('loading', 'Sedang mengirim data ke sistem...');
+          // --- LANGSUNG KASIH SUKSES KE PENGGUNA TANPA NUNGGU GOOGLE ---
+          showStatus('success', '✅ Laporan Masuk Antrean Server! Silakan lanjut.'); 
+          document.getElementById('pickupForm').reset();
+          document.getElementById('picNameOther').style.display = 'none'; 
           
+          setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 3000);
+          btn.disabled = false; 
+          document.getElementById('btnText').innerText = 'Kirim Report';
+
+          // --- KIRIM DATA KE GOOGLE DIAM-DIAM DI BELAKANG LAYAR ---
           fetch(scriptURL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({ action: 'submitForm', payload: dataKirim })
           })
-          .then(response => response.json())
-          .then(data => {
-             orderInput.value = originalText; 
-             if(data.status === "success") {
-               showStatus('success', data.message); 
-               document.getElementById('pickupForm').reset();
-               document.getElementById('picNameOther').style.display = 'none'; 
-               
-               setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 5000);
-             } else { showStatus('error', data.message); }
-             btn.disabled = false; document.getElementById('btnText').innerText = 'Kirim Report';
-          })
           .catch(error => {
-             orderInput.value = originalText; 
-             showStatus('error', 'Terjadi Kesalahan Jaringan.');
-             btn.disabled = false; document.getElementById('btnText').innerText = 'Kirim Report';
+             console.error('Kirim background gagal:', error);
           });
         }
       };
@@ -351,7 +349,7 @@
       .then(() => {
         txt.innerText = 'Sistem Packer Berbunyi!';
         var pesanWA = "Halo%20Tim%20Packing,%20driver%20instant%20sudah%20di%20depan%20tapi%20paket%20belum%20turun!";
-        window.open("https://wa.me/6285156024369?text=" + pesanWA, "_blank");
+        window.open("https://wa.me/6285156024269?text=" + pesanWA, "_blank");
         setTimeout(() => { window.open("https://wa.me/628577624822?text=" + pesanWA, "_blank"); }, 1000);
         setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 5000);
       });

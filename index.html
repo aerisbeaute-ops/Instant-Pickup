@@ -39,11 +39,12 @@
     .badge-success { display: flex; background-color: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
     .badge-error { display: flex; background-color: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
     
+    /* TOAST POP-UP BERHASIL */
     .scan-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #10B981; color: white; padding: 12px 24px; border-radius: 50px; font-weight: 800; font-size: 15px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); z-index: 9999; display: flex; align-items: center; gap: 8px; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
     .scan-toast.show { opacity: 1; visibility: visible; top: 50px; }
     .scan-toast svg { width: 20px; height: 20px; }
 
-    /* PERBAIKAN: Kotak Tombol Upload Custom (Ganti Input File Bawaan yg Ngebug) */
+    /* TOMBOL KOTAK BESAR UNTUK FOTO DRIVER */
     .custom-file-upload { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px 20px; background-color: var(--input-bg); border: 2px dashed #CBD5E1; border-radius: 16px; cursor: pointer; transition: 0.3s; color: var(--text-dark); font-weight: 700; font-size: 15px; text-align: center; gap: 12px; }
     .custom-file-upload:hover { border-color: var(--aeris-maroon); background-color: #F1F5F9; }
     .custom-file-upload.has-file { border-color: #10B981; background-color: #ECFDF5; color: #065F46; }
@@ -51,6 +52,7 @@
 </head>
 <body>
 
+  <!-- POP-UP BERHASIL -->
   <div id="scanToast" class="scan-toast">
     <i data-feather="check-circle"></i> Berhasil! Lanjut...
   </div>
@@ -62,6 +64,7 @@
       <div id="clockDisplay"><i data-feather="clock" stroke-width="2.5"></i><span id="timeText">Memuat waktu...</span></div>
     </div>
 
+    <!-- TOMBOL PING -->
     <button type="button" class="ping-top-btn" id="pingBtn" onclick="pingPackerSistem()" title="Ping Tim Packer">
       <i data-feather="bell" id="pingIcon"></i> <span id="pingText">Ping Tim Packer</span>
     </button>
@@ -79,10 +82,19 @@
           </button>
           
           <div id="reader"></div>
-          <div id="cameraError"><b>🚨 Gagal Akses Kamera!</b><br><br>Pastikan kamu klik <b>Allow/Izinkan</b> saat pop-up muncul.</div>
           
-          <!-- PESAN TAMBAHAN AGAR PIC TIDAK TERLALU DEKAT -->
-          <span class="help-text">💡 <b>Tips:</b> Jangan terlalu dekat! Jauhkan kamera sedikit agar tidak buram (blur) saat scan.</span>
+          <!-- SOLUSI ANTI-GAGAL JIKA KAMERA DIBLOKIR -->
+          <div id="cameraError">
+            <b>🚨 Kamera Live Diblokir oleh HP Kamu!</b><br><br>
+            Jangan khawatir! Klik tombol hijau di bawah ini untuk <b>Memfoto Resi</b>. Sistem akan mengekstrak barcode dari foto tersebut secara otomatis. 👇<br><br>
+            
+            <button type="button" onclick="document.getElementById('resiFallbackUpload').click()" class="camera-btn" style="background-color: #10B981;">
+              <i data-feather="camera"></i> Jepret Foto Resi (Anti-Gagal)
+            </button>
+            <input type="file" id="resiFallbackUpload" accept="image/*" capture="environment" style="display:none;" onchange="scanResiDariFoto(event)">
+          </div>
+          
+          <span class="help-text">💡 <b>Tips:</b> Jika kamera terbuka, jangan terlalu dekat! Jauhkan kamera sedikit agar tidak buram saat scan.</span>
         </div>
 
         <div class="form-group">
@@ -112,15 +124,13 @@
           <input type="text" id="picNameOther" placeholder="Ketik nama..." style="display:none; margin-top: 12px;">
         </div>
         
-        <!-- PERBAIKAN: Kotak Upload Custom yang Super Besar dan Nyaman Diklik -->
+        <!-- TOMBOL KOTAK BESAR UNTUK FOTO DRIVER -->
         <div class="form-group">
           <label><i data-feather="image"></i> Foto Bukti Paket / Driver</label>
-          
           <div id="uploadBox" class="custom-file-upload" onclick="document.getElementById('packagePhoto').click()">
             <i data-feather="camera" style="width: 32px; height: 32px; color: var(--aeris-maroon);"></i>
             <span id="fileNameDisplay">Klik di sini untuk Membuka Kamera</span>
           </div>
-          
           <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" capture="environment" required style="display:none;" onchange="updateFileName(this)">
         </div>
 
@@ -133,7 +143,7 @@
   <script>
     feather.replace();
     
-    // MASUKKAN LINK GOOGLE APPS SCRIPT KAMU DI SINI
+    // URL APPS SCRIPT KAMU
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwBUqiOOTC_L_j8EmnkT1CHdRVpRlkggTNYC8R5DYAOOUgX1OfCKkCudEcfGj-IQQ3u/exec'; 
     
     function updateClock() {
@@ -143,7 +153,6 @@
     }
     setInterval(updateClock, 1000); updateClock(); 
 
-    // LOGIKA PERUBAHAN TAMPILAN KOTAK FOTO KETIKA FOTO SUDAH DIAMBIL
     function updateFileName(input) {
       var display = document.getElementById('fileNameDisplay');
       var box = document.getElementById('uploadBox');
@@ -158,6 +167,25 @@
 
     let html5QrCode;
 
+    function triggerSuksesScan(decodedText) {
+      var orderTextArea = document.getElementById('orderNumber');
+      if (!orderTextArea.value.includes(decodedText)) {
+        orderTextArea.value = orderTextArea.value === "" ? decodedText : orderTextArea.value + "\n" + decodedText;
+        
+        // Munculkan Pop Up Toast
+        var toast = document.getElementById('scanToast');
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); }, 1500); 
+
+        // Suara "Oke"
+        if ('speechSynthesis' in window) {
+          var utterance = new SpeechSynthesisUtterance("Oke");
+          utterance.lang = 'id-ID'; utterance.rate = 1.5;
+          window.speechSynthesis.speak(utterance);
+        }
+      }
+    }
+
     function startCamera() {
       document.getElementById('cameraError').style.display = 'none';
       document.getElementById('startCameraBtn').style.display = 'none';
@@ -167,35 +195,13 @@
       html5QrCode = new Html5Qrcode("reader");
       const config = { fps: 10, qrbox: { width: 300, height: 120 } };
 
-      // PERBAIKAN: Paksa resolusi HD dan Fokus Terus-Menerus agar tidak blur saat agak jauh
-      const cameraConstraints = {
-        facingMode: "environment",
-        width: { ideal: 1920 },
-        height: { ideal: 1080 },
-        advanced: [{ focusMode: "continuous" }]
-      };
-
       html5QrCode.start(
-        cameraConstraints, 
+        { facingMode: "environment" }, 
         config,
-        function(decodedText) {
-          var orderTextArea = document.getElementById('orderNumber');
-          if (!orderTextArea.value.includes(decodedText)) {
-            orderTextArea.value = orderTextArea.value === "" ? decodedText : orderTextArea.value + "\n" + decodedText;
-            
-            var toast = document.getElementById('scanToast');
-            toast.classList.add('show');
-            setTimeout(function() { toast.classList.remove('show'); }, 1500); 
-
-            if ('speechSynthesis' in window) {
-              var utterance = new SpeechSynthesisUtterance("Oke");
-              utterance.lang = 'id-ID'; utterance.rate = 1.5;
-              window.speechSynthesis.speak(utterance);
-            }
-          }
-        },
+        function(decodedText) { triggerSuksesScan(decodedText); },
         function(errorMessage) { /* Abaikan error cari fokus */ }
       ).catch(function(err) {
+        // JIKA DITOLAK HP, MUNCULKAN TOMBOL ANTI-GAGAL
         document.getElementById('cameraError').style.display = 'block';
         stopCamera();
       });
@@ -211,6 +217,31 @@
       }
     }
 
+    // FUNGSI BARU: BACA BARCODE DARI FOTO KAMERA BAWAAN
+    function scanResiDariFoto(event) {
+      if (event.target.files.length == 0) return;
+      var file = event.target.files[0];
+      
+      showStatus('loading', 'Membaca barcode dari foto...');
+      
+      if (!html5QrCode) {
+        html5QrCode = new Html5Qrcode("reader");
+      }
+      
+      html5QrCode.scanFile(file, true)
+        .then(decodedText => {
+           triggerSuksesScan(decodedText);
+           showStatus('success', '✅ Barcode berhasil dibaca!');
+           setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 3000);
+           event.target.value = ''; // Reset
+        })
+        .catch(err => {
+           showStatus('error', '❌ Barcode tidak terbaca! Pastikan foto terang dan fokus pada resi.');
+           setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 5000);
+           event.target.value = ''; // Reset
+        });
+    }
+
     function togglePicInput() {
       var select = document.getElementById('picNameSelect');
       var inputOther = document.getElementById('picNameOther');
@@ -223,6 +254,7 @@
 
     function showStatus(type, text) {
       var statusDiv = document.getElementById('statusMessage');
+      statusDiv.style.display = 'flex';
       statusDiv.className = 'status-badge'; 
       if(type === 'loading') { statusDiv.classList.add('badge-loading'); statusDiv.innerHTML = '<i data-feather="loader"></i> ' + text; } 
       else if (type === 'success') { statusDiv.classList.add('badge-success'); statusDiv.innerHTML = '<i data-feather="check-circle"></i> ' + text; } 
@@ -300,7 +332,8 @@
                var display = document.getElementById('fileNameDisplay');
                box.classList.remove('has-file');
                display.innerText = "Klik di sini untuk Membuka Kamera";
-
+               
+               setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 5000);
              } else { showStatus('error', data.message); }
              btn.disabled = false; document.getElementById('btnText').innerText = 'Kirim Report';
           })

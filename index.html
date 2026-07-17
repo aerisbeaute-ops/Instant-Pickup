@@ -23,15 +23,13 @@
     .form-group { margin-bottom: 24px; }
     label { display: flex; align-items: center; gap: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; color: var(--text-light); margin-bottom: 10px; }
     label svg { width: 16px; height: 16px; color: var(--aeris-maroon); stroke-width: 2.5; }
-    input[type="text"], select, textarea, input[type="file"] { width: 100%; padding: 18px; background-color: var(--input-bg); border: 2px solid transparent; border-radius: 16px; box-sizing: border-box; font-size: 16px; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dark); font-weight: 600; transition: all 0.3s ease; }
+    input[type="text"], select, textarea { width: 100%; padding: 18px; background-color: var(--input-bg); border: 2px solid transparent; border-radius: 16px; box-sizing: border-box; font-size: 16px; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dark); font-weight: 600; transition: all 0.3s ease; }
     textarea.giant-input { font-size: 15px; line-height: 1.6; resize: vertical; background-color: #F1F5F9; color: var(--text-dark); border: 2px dashed #CBD5E1;}
     input:focus, select:focus, textarea:focus { outline: none; background-color: var(--surface); border-color: var(--aeris-maroon); box-shadow: 0 0 0 4px rgba(112, 20, 3, 0.1); }
     .camera-btn { width: 100%; padding: 15px; background-color: #1E293B; color: white; border: none; border-radius: 16px; font-size: 15px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.3s; }
     .camera-btn:hover { background-color: #334155; }
     #reader { width: 100%; margin-top: 10px; display: none; border-radius: 16px; overflow: hidden; border: 2px solid var(--aeris-maroon); background-color: #000; }
     #cameraError { display: none; background-color: #FEF2F2; color: #991B1B; padding: 16px; border-radius: 16px; border: 1px solid #FECACA; font-size: 13px; font-weight: 600; margin-top: 10px; line-height: 1.5; }
-    input[type="file"] { padding: 14px; font-size: 14px; font-weight: 500; color: var(--text-light); }
-    input[type="file"]::file-selector-button { background-color: var(--surface); border: 1px solid #E2E8F0; border-radius: 50px; padding: 10px 20px; margin-right: 14px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dark); cursor: pointer; }
     .help-text { font-size: 12px; color: var(--text-light); margin-top: 10px; font-weight: 500; display: block;}
     button.submit-btn { width: 100%; padding: 20px; background: linear-gradient(135deg, var(--aeris-maroon), var(--aeris-maroon-hover)); color: white; border: none; border-radius: 50px; font-size: 16px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px; box-shadow: 0 10px 20px rgba(112, 20, 3, 0.25); transition: 0.3s; }
     .ping-top-btn { width: 100%; background-color: #EF4444; color: white; padding: 18px; border-radius: 16px; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3); border: none; cursor: pointer; font-family: inherit; margin-bottom: 24px; transition: all 0.3s ease; }
@@ -41,15 +39,18 @@
     .badge-success { display: flex; background-color: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
     .badge-error { display: flex; background-color: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
     
-    /* STYLE UNTUK POP-UP BERHASIL SCAN */
     .scan-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #10B981; color: white; padding: 12px 24px; border-radius: 50px; font-weight: 800; font-size: 15px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); z-index: 9999; display: flex; align-items: center; gap: 8px; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
     .scan-toast.show { opacity: 1; visibility: visible; top: 50px; }
     .scan-toast svg { width: 20px; height: 20px; }
+
+    /* PERBAIKAN: Kotak Tombol Upload Custom (Ganti Input File Bawaan yg Ngebug) */
+    .custom-file-upload { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px 20px; background-color: var(--input-bg); border: 2px dashed #CBD5E1; border-radius: 16px; cursor: pointer; transition: 0.3s; color: var(--text-dark); font-weight: 700; font-size: 15px; text-align: center; gap: 12px; }
+    .custom-file-upload:hover { border-color: var(--aeris-maroon); background-color: #F1F5F9; }
+    .custom-file-upload.has-file { border-color: #10B981; background-color: #ECFDF5; color: #065F46; }
   </style>
 </head>
 <body>
 
-  <!-- ELEMEN POP-UP TOAST -->
   <div id="scanToast" class="scan-toast">
     <i data-feather="check-circle"></i> Berhasil! Lanjut...
   </div>
@@ -79,7 +80,9 @@
           
           <div id="reader"></div>
           <div id="cameraError"><b>🚨 Gagal Akses Kamera!</b><br><br>Pastikan kamu klik <b>Allow/Izinkan</b> saat pop-up muncul.</div>
-          <span class="help-text">Arahkan kamera ke barcode resi. Hasilnya otomatis terketik di kotak bawah.</span>
+          
+          <!-- PESAN TAMBAHAN AGAR PIC TIDAK TERLALU DEKAT -->
+          <span class="help-text">💡 <b>Tips:</b> Jangan terlalu dekat! Jauhkan kamera sedikit agar tidak buram (blur) saat scan.</span>
         </div>
 
         <div class="form-group">
@@ -108,10 +111,19 @@
           </select>
           <input type="text" id="picNameOther" placeholder="Ketik nama..." style="display:none; margin-top: 12px;">
         </div>
+        
+        <!-- PERBAIKAN: Kotak Upload Custom yang Super Besar dan Nyaman Diklik -->
         <div class="form-group">
-          <label for="packagePhoto"><i data-feather="image"></i> Foto Bukti Paket</label>
-          <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" capture="environment" required>
+          <label><i data-feather="image"></i> Foto Bukti Paket / Driver</label>
+          
+          <div id="uploadBox" class="custom-file-upload" onclick="document.getElementById('packagePhoto').click()">
+            <i data-feather="camera" style="width: 32px; height: 32px; color: var(--aeris-maroon);"></i>
+            <span id="fileNameDisplay">Klik di sini untuk Membuka Kamera</span>
+          </div>
+          
+          <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" capture="environment" required style="display:none;" onchange="updateFileName(this)">
         </div>
+
         <button type="submit" id="submitBtn" class="submit-btn"><i data-feather="send" id="btnIcon"></i><span id="btnText">Kirim Report</span></button>
       </form>
     </div>
@@ -120,9 +132,8 @@
 
   <script>
     feather.replace();
-    // ==========================================
-    // MASUKKAN LINK GOOGLE APPS SCRIPT KAMU DI SINI (JANGAN SAMPAI HILANG)
-    // ==========================================
+    
+    // MASUKKAN LINK GOOGLE APPS SCRIPT KAMU DI SINI
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwBUqiOOTC_L_j8EmnkT1CHdRVpRlkggTNYC8R5DYAOOUgX1OfCKkCudEcfGj-IQQ3u/exec'; 
     
     function updateClock() {
@@ -131,6 +142,19 @@
       document.getElementById('timeText').innerText = now.toLocaleDateString('id-ID', options) + ' • ' + now.toLocaleTimeString('id-ID', { hour12: false });
     }
     setInterval(updateClock, 1000); updateClock(); 
+
+    // LOGIKA PERUBAHAN TAMPILAN KOTAK FOTO KETIKA FOTO SUDAH DIAMBIL
+    function updateFileName(input) {
+      var display = document.getElementById('fileNameDisplay');
+      var box = document.getElementById('uploadBox');
+      if (input.files && input.files.length > 0) {
+        display.innerText = "✅ Foto Berhasil Diambil!";
+        box.classList.add('has-file');
+      } else {
+        display.innerText = "Klik di sini untuk Membuka Kamera";
+        box.classList.remove('has-file');
+      }
+    }
 
     let html5QrCode;
 
@@ -143,18 +167,25 @@
       html5QrCode = new Html5Qrcode("reader");
       const config = { fps: 10, qrbox: { width: 300, height: 120 } };
 
+      // PERBAIKAN: Paksa resolusi HD dan Fokus Terus-Menerus agar tidak blur saat agak jauh
+      const cameraConstraints = {
+        facingMode: "environment",
+        width: { ideal: 1920 },
+        height: { ideal: 1080 },
+        advanced: [{ focusMode: "continuous" }]
+      };
+
       html5QrCode.start(
-        { facingMode: "environment" }, 
+        cameraConstraints, 
         config,
         function(decodedText) {
           var orderTextArea = document.getElementById('orderNumber');
           if (!orderTextArea.value.includes(decodedText)) {
             orderTextArea.value = orderTextArea.value === "" ? decodedText : orderTextArea.value + "\n" + decodedText;
             
-            // MUNCULKAN POP UP BERHASIL DI SINI
             var toast = document.getElementById('scanToast');
             toast.classList.add('show');
-            setTimeout(function() { toast.classList.remove('show'); }, 1500); // Hilang setelah 1.5 detik
+            setTimeout(function() { toast.classList.remove('show'); }, 1500); 
 
             if ('speechSynthesis' in window) {
               var utterance = new SpeechSynthesisUtterance("Oke");
@@ -251,7 +282,6 @@
           document.getElementById('btnText').innerText = 'Mengirim Data...';
           showStatus('loading', 'Sedang mengirim data ke sistem...');
           
-          // KIRIM DATA KE GOOGLE APPS SCRIPT VIA FETCH
           fetch(scriptURL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -264,6 +294,13 @@
                showStatus('success', data.message); 
                document.getElementById('pickupForm').reset();
                document.getElementById('picNameOther').style.display = 'none'; 
+               
+               // Reset tampilan kotak foto
+               var box = document.getElementById('uploadBox');
+               var display = document.getElementById('fileNameDisplay');
+               box.classList.remove('has-file');
+               display.innerText = "Klik di sini untuk Membuka Kamera";
+
              } else { showStatus('error', data.message); }
              btn.disabled = false; document.getElementById('btnText').innerText = 'Kirim Report';
           })

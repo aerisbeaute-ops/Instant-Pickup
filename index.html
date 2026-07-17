@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AERIS BEAUTE - Instant Pickup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  
+  <style>
+    /* CSS SAMA PERSIS SEPERTI SEBELUMNYA */
+    :root { --aeris-maroon: #701403; --aeris-maroon-hover: #8A1904; --bg-body: #F3F5F9; --surface: #FFFFFF; --text-dark: #1E293B; --text-light: #64748B; --input-bg: #F8FAFC; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-body); color: var(--text-dark); margin: 0; padding: 24px 16px 40px 16px; display: flex; justify-content: center; }
+    .dashboard-wrapper { width: 100%; max-width: 450px; }
+    .card { background-color: var(--surface); border-radius: 24px; padding: 30px 24px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03); margin-bottom: 24px; }
+    .card-header { text-align: center; display: flex; flex-direction: column; align-items: center; }
+    .header-icon-wrapper { background: linear-gradient(135deg, rgba(112,20,3,0.1), rgba(112,20,3,0.02)); padding: 18px; border-radius: 20px; margin-bottom: 16px; color: var(--aeris-maroon); }
+    h2 { font-size: 22px; font-weight: 800; margin: 0 0 12px 0; color: var(--text-dark); letter-spacing: -0.5px; }
+    #clockDisplay { font-size: 13px; font-weight: 600; color: var(--text-light); background-color: var(--bg-body); padding: 8px 18px; border-radius: 50px; display: inline-flex; align-items: center; gap: 8px; }
+    #clockDisplay svg { width: 14px; height: 14px; }
+    .form-group { margin-bottom: 24px; }
+    label { display: flex; align-items: center; gap: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; color: var(--text-light); margin-bottom: 10px; }
+    label svg { width: 16px; height: 16px; color: var(--aeris-maroon); stroke-width: 2.5; }
+    input[type="text"], select, textarea, input[type="file"] { width: 100%; padding: 18px; background-color: var(--input-bg); border: 2px solid transparent; border-radius: 16px; box-sizing: border-box; font-size: 16px; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dark); font-weight: 600; transition: all 0.3s ease; }
+    textarea.giant-input { font-size: 15px; line-height: 1.6; resize: vertical; background-color: #F1F5F9; color: var(--text-dark); border: 2px dashed #CBD5E1;}
+    input:focus, select:focus, textarea:focus { outline: none; background-color: var(--surface); border-color: var(--aeris-maroon); box-shadow: 0 0 0 4px rgba(112, 20, 3, 0.1); }
+    .camera-btn { width: 100%; padding: 15px; background-color: #1E293B; color: white; border: none; border-radius: 16px; font-size: 15px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.3s; }
+    .camera-btn:hover { background-color: #334155; }
+    #reader { width: 100%; margin-top: 10px; display: none; border-radius: 16px; overflow: hidden; border: 2px solid var(--aeris-maroon); background-color: #000; }
+    #cameraError { display: none; background-color: #FEF2F2; color: #991B1B; padding: 16px; border-radius: 16px; border: 1px solid #FECACA; font-size: 13px; font-weight: 600; margin-top: 10px; line-height: 1.5; }
+    input[type="file"] { padding: 14px; font-size: 14px; font-weight: 500; color: var(--text-light); }
+    input[type="file"]::file-selector-button { background-color: var(--surface); border: 1px solid #E2E8F0; border-radius: 50px; padding: 10px 20px; margin-right: 14px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dark); cursor: pointer; }
+    .help-text { font-size: 12px; color: var(--text-light); margin-top: 10px; font-weight: 500; display: block;}
+    button.submit-btn { width: 100%; padding: 20px; background: linear-gradient(135deg, var(--aeris-maroon), var(--aeris-maroon-hover)); color: white; border: none; border-radius: 50px; font-size: 16px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px; box-shadow: 0 10px 20px rgba(112, 20, 3, 0.25); transition: 0.3s; }
+    .ping-top-btn { width: 100%; background-color: #EF4444; color: white; padding: 18px; border-radius: 16px; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3); border: none; cursor: pointer; font-family: inherit; margin-bottom: 24px; transition: all 0.3s ease; }
+    .ping-top-btn:hover { background-color: #DC2626; transform: translateY(-3px); box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4); }
+    .status-badge { margin-top: 24px; text-align: center; font-weight: 700; font-size: 14px; padding: 18px; border-radius: 16px; display: none; align-items: center; justify-content: center; gap: 10px; }
+    .badge-loading { display: flex; background-color: #EFF6FF; color: #1E3A8A; border: 1px solid #BFDBFE; }
+    .badge-success { display: flex; background-color: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+    .badge-error { display: flex; background-color: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-wrapper">
+    <div class="card card-header">
+      <div class="header-icon-wrapper"><i data-feather="package" stroke-width="2" width="36" height="36"></i></div>
+      <h2>AERIS BEAUTE</h2>
+      <div id="clockDisplay"><i data-feather="clock" stroke-width="2.5"></i><span id="timeText">Memuat waktu...</span></div>
+    </div>
+
+    <!-- TOMBOL PING -->
+    <button type="button" class="ping-top-btn" id="pingBtn" onclick="pingPackerSistem()" title="Ping Tim Packer">
+      <i data-feather="bell" id="pingIcon"></i> <span id="pingText">Ping Tim Packer</span>
+    </button>
+
+    <div class="card">
+      <form id="pickupForm" onsubmit="handleFormSubmit(event)">
+        
+        <!-- FITUR KAMERA LIVE -->
+        <div class="form-group">
+          <label><i data-feather="camera"></i> Scan Resi via Kamera HP</label>
+          <button type="button" id="startCameraBtn" onclick="startCamera()" class="camera-btn">
+            <i data-feather="maximize"></i> Buka Kamera Scanner
+          </button>
+          <button type="button" id="stopCameraBtn" onclick="stopCamera()" class="camera-btn" style="display:none; background-color: #EF4444;">
+            <i data-feather="x-circle"></i> Tutup Kamera
+          </button>
+          
+          <div id="reader"></div>
+
+          <div id="cameraError">
+            <b>🚨 Gagal Akses Kamera!</b><br><br>
+            Pastikan kamu klik <b>Allow/Izinkan</b> saat pop-up muncul.
+          </div>
+          
+          <span class="help-text">Arahkan kamera ke barcode resi. Hasilnya otomatis terketik di kotak bawah.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="orderNumber"><i data-feather="list"></i> Daftar Resi / Order Number</label>
+          <textarea id="orderNumber" class="giant-input" name="orderNumber" required rows="4" placeholder="Hasil scan kamera akan muncul di sini."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="courierName"><i data-feather="truck"></i> Nama Kurir</label>
+          <select id="courierName" name="courierName" required>
+            <option value="">-- Pilih Ekspedisi --</option>
+            <option value="Gojek">Gojek</option><option value="Grab">Grab</option>
+            <option value="Shopee Express">Shopee Express</option><option value="Lalamove">Lalamove</option>
+            <option value="Lainnya">Lainnya...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="picNameSelect"><i data-feather="user"></i> PIC Instant</label>
+          <select id="picNameSelect" name="picName" required onchange="togglePicInput()">
+            <option value="">-- Pilih Nama PIC --</option>
+            <option value="Abel">Abel</option><option value="Fadhlan">Fadhlan</option>
+            <option value="Mesa">Mesa</option><option value="Farhan Syah">Farhan Syah</option>
+            <option value="Dede">Dede</option><option value="Michael">Michael</option>
+            <option value="Alan">Alan</option><option value="Chalza">Chalza</option>
+            <option value="Rezi">Rezi</option><option value="Lainnya">Lainnya (Ketik Sendiri)...</option>
+          </select>
+          <input type="text" id="picNameOther" placeholder="Ketik nama..." style="display:none; margin-top: 12px;">
+        </div>
+        <div class="form-group">
+          <label for="packagePhoto"><i data-feather="image"></i> Foto Bukti Paket</label>
+          <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" capture="environment" required>
+        </div>
+        <button type="submit" id="submitBtn" class="submit-btn"><i data-feather="send" id="btnIcon"></i><span id="btnText">Kirim Report</span></button>
+      </form>
+    </div>
+    <div id="statusMessage" class="status-badge"></div>
+  </div>
+
+  <script>
+    feather.replace();
+    // ==========================================
+    // MASUKKAN LINK GOOGLE APPS SCRIPT KAMU DI SINI
+    // ==========================================
+    const scriptURL = 'https://script.google.com/home/projects/1iNY-AhWCdqzaIzPpMixtKXm_jCwCo-FdIua7RinPaxn33OyVTUn9ckuf/edit'; 
+    
+    function updateClock() {
+      var now = new Date();
+      var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('timeText').innerText = now.toLocaleDateString('id-ID', options) + ' • ' + now.toLocaleTimeString('id-ID', { hour12: false });
+    }
+    setInterval(updateClock, 1000); updateClock(); 
+
+    let html5QrCode;
+
+    function startCamera() {
+      document.getElementById('cameraError').style.display = 'none';
+      document.getElementById('startCameraBtn').style.display = 'none';
+      document.getElementById('stopCameraBtn').style.display = 'flex';
+      document.getElementById('reader').style.display = 'block';
+
+      html5QrCode = new Html5Qrcode("reader");
+      const config = { fps: 10, qrbox: { width: 300, height: 120 } };
+
+      html5QrCode.start(
+        { facingMode: "environment" }, 
+        config,
+        function(decodedText) {
+          var orderTextArea = document.getElementById('orderNumber');
+          if (!orderTextArea.value.includes(decodedText)) {
+            orderTextArea.value = orderTextArea.value === "" ? decodedText : orderTextArea.value + "\n" + decodedText;
+            if ('speechSynthesis' in window) {
+              var utterance = new SpeechSynthesisUtterance("Oke");
+              utterance.lang = 'id-ID'; utterance.rate = 1.5;
+              window.speechSynthesis.speak(utterance);
+            }
+          }
+        },
+        function(errorMessage) { /* Abaikan error cari fokus */ }
+      ).catch(function(err) {
+        document.getElementById('cameraError').style.display = 'block';
+        stopCamera();
+      });
+    }
+
+    function stopCamera() {
+      if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+          document.getElementById('startCameraBtn').style.display = 'flex';
+          document.getElementById('stopCameraBtn').style.display = 'none';
+          document.getElementById('reader').style.display = 'none';
+        }).catch(err => console.log(err));
+      }
+    }
+
+    function togglePicInput() {
+      var select = document.getElementById('picNameSelect');
+      var inputOther = document.getElementById('picNameOther');
+      if (select.value === "Lainnya") {
+        inputOther.style.display = "block"; inputOther.required = true;
+      } else {
+        inputOther.style.display = "none"; inputOther.required = false;
+      }
+    }
+
+    function showStatus(type, text) {
+      var statusDiv = document.getElementById('statusMessage');
+      statusDiv.className = 'status-badge'; 
+      if(type === 'loading') { statusDiv.classList.add('badge-loading'); statusDiv.innerHTML = '<i data-feather="loader"></i> ' + text; } 
+      else if (type === 'success') { statusDiv.classList.add('badge-success'); statusDiv.innerHTML = '<i data-feather="check-circle"></i> ' + text; } 
+      else if (type === 'error') { statusDiv.classList.add('badge-error'); statusDiv.innerHTML = '<i data-feather="alert-circle"></i> ' + text; }
+      feather.replace(); 
+    }
+
+    function handleFormSubmit(event) {
+      event.preventDefault(); 
+      stopCamera(); 
+      
+      var btn = document.getElementById('submitBtn');
+      btn.disabled = true; document.getElementById('btnText').innerText = 'Mengompres Foto...';
+      showStatus('loading', 'Sedang memproses foto...');
+      
+      var orderInput = document.getElementById('orderNumber');
+      var originalText = orderInput.value;
+      orderInput.value = originalText.replace(/\n/g, ', ');
+
+      var picFinal = document.getElementById('picNameSelect').value === 'Lainnya' ? document.getElementById('picNameOther').value : document.getElementById('picNameSelect').value;
+      
+      var dataKirim = {
+        orderNumber: orderInput.value,
+        courierName: document.getElementById('courierName').value,
+        picName: picFinal
+      };
+
+      var file = document.getElementById('packagePhoto').files[0];
+      if (!file) {
+        showStatus('error', 'Harap lampirkan foto!');
+        btn.disabled = false; document.getElementById('btnText').innerText = 'Kirim Report';
+        return;
+      }
+
+      var reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = function(e) {
+        var img = new Image();
+        img.src = e.target.result;
+        img.onload = function() {
+          var canvas = document.createElement('canvas');
+          var MAX_WIDTH = 800; 
+          var scaleSize = MAX_WIDTH / img.width;
+          
+          if (img.width > MAX_WIDTH) {
+            canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
+          } else {
+            canvas.width = img.width; canvas.height = img.height;
+          }
+          
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          
+          dataKirim.packagePhotoBase64 = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+          dataKirim.packagePhotoType = 'image/jpeg';
+          
+          document.getElementById('btnText').innerText = 'Mengirim Data...';
+          showStatus('loading', 'Sedang mengirim data ke sistem...');
+          
+          // KIRIM DATA KE GOOGLE APPS SCRIPT VIA FETCH
+          fetch(scriptURL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'submitForm', payload: dataKirim })
+          })
+          .then(response => response.json())
+          .then(data => {
+             orderInput.value = originalText; 
+             if(data.status === "success") {
+               showStatus('success', data.message); 
+               document.getElementById('pickupForm').reset();
+               document.getElementById('picNameOther').style.display = 'none'; 
+             } else { showStatus('error', data.message); }
+             btn.disabled = false; document.getElementById('btnText').innerText = 'Kirim Report';
+          })
+          .catch(error => {
+             orderInput.value = originalText; 
+             showStatus('error', 'Terjadi Kesalahan Jaringan.');
+             btn.disabled = false; document.getElementById('btnText').innerText = 'Kirim Report';
+          });
+        }
+      };
+    }
+
+    function pingPackerSistem() {
+      var btn = document.getElementById('pingBtn');
+      var txt = document.getElementById('pingText');
+      btn.disabled = true; txt.innerText = 'Mengirim Sinyal...';
+      
+      fetch(scriptURL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'ping' })
+      })
+      .then(() => {
+        txt.innerText = 'Sistem Packer Berbunyi!';
+        var pesanWA = "Halo%20Tim%20Packing,%20driver%20instant%20sudah%20di%20depan%20tapi%20paket%20belum%20turun!";
+        window.open("https://wa.me/6285156024269?text=" + pesanWA, "_blank");
+        setTimeout(() => { window.open("https://wa.me/628577624822?text=" + pesanWA, "_blank"); }, 1000);
+        setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 5000);
+      });
+    }
+  </script>
+</body>
+</html>

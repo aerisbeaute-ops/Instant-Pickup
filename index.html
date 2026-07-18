@@ -80,7 +80,6 @@
           
           <div id="reader"></div>
           
-          <!-- SOLUSI ANTI-GAGAL JIKA KAMERA DIBLOKIR -->
           <div id="cameraError">
             <b>🚨 Kamera Live Diblokir oleh HP Kamu!</b><br><br>
             Jangan khawatir! Klik tombol hijau di bawah ini untuk <b>Memfoto Resi</b>. Sistem akan mengekstrak barcode dari foto tersebut secara otomatis. 👇<br><br>
@@ -93,7 +92,7 @@
             </div>
           </div>
           
-          <span class="help-text">💡 <b>Tips:</b> Jika kamera terbuka, jangan terlalu dekat! Jauhkan kamera sedikit agar tidak buram saat scan.</span>
+          <span class="help-text">💡 <b>Mode Sapu Jagat Aktif:</b> Arahkan kamera dan sapukan perlahan ke tumpukan paket. Seluruh layar sekarang jadi area baca!</span>
         </div>
 
         <div class="form-group">
@@ -151,6 +150,7 @@
 
     function triggerSuksesScan(decodedText) {
       var orderTextArea = document.getElementById('orderNumber');
+      // Hanya tambahkan jika nomor resi belum ada di dalam kotak (mencegah double scan)
       if (!orderTextArea.value.includes(decodedText)) {
         orderTextArea.value = orderTextArea.value === "" ? decodedText : orderTextArea.value + "\n" + decodedText;
         
@@ -192,7 +192,10 @@
       document.getElementById('reader').style.display = 'block';
 
       html5QrCode = new Html5Qrcode("reader");
-      const config = { fps: 10, qrbox: { width: 300, height: 120 } };
+      
+      // KUNCI JURUS SAPU JAGAT: fps dinaikkan ke 30 (super ngebut), dan kotak pembatas (qrbox) DIHAPUS. 
+      // Jadi seluruh area layar kamera akan aktif mencari barcode!
+      const config = { fps: 30 };
 
       html5QrCode.start(
         { facingMode: "environment" }, 
@@ -259,9 +262,6 @@
       feather.replace(); 
     }
 
-    // ========================================================
-    // JURUS MAGIC: KIRIM BACKGROUND (PROSES KILAT 0,1 DETIK)
-    // ========================================================
     function handleFormSubmit(event) {
       event.preventDefault(); 
       stopCamera(); 
@@ -297,7 +297,7 @@
         img.src = e.target.result;
         img.onload = function() {
           var canvas = document.createElement('canvas');
-          var MAX_WIDTH = 600; // Dikompres kecil supaya super ngebut
+          var MAX_WIDTH = 600; 
           var scaleSize = MAX_WIDTH / img.width;
           
           if (img.width > MAX_WIDTH) {
@@ -312,7 +312,6 @@
           dataKirim.packagePhotoBase64 = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
           dataKirim.packagePhotoType = 'image/jpeg';
           
-          // --- LANGSUNG KASIH SUKSES KE PENGGUNA TANPA NUNGGU GOOGLE ---
           showStatus('success', '✅ Laporan Masuk Antrean Server! Silakan lanjut.'); 
           document.getElementById('pickupForm').reset();
           document.getElementById('picNameOther').style.display = 'none'; 
@@ -321,7 +320,6 @@
           btn.disabled = false; 
           document.getElementById('btnText').innerText = 'Kirim Report';
 
-          // --- KIRIM DATA KE GOOGLE DIAM-DIAM DI BELAKANG LAYAR ---
           fetch(scriptURL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -334,14 +332,9 @@
       };
     }
 
-    // ========================================================
-    // PING PINTAR (LANGSUNG TEMBAK KE BACKEND TANPA WHATSAPP)
-    // ========================================================
     function pingPackerSistem() {
-      // 1. Tanya PIC nomor ordernya
-      var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik Kode Pickup yang sedang ditunggu driver. Notifikasi akan langsung dikirim ke sistem Packer:");
+      var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver. Notifikasi akan langsung dikirim ke sistem Packer:");
       
-      // 2. Kalau PIC klik batal atau kosongin, batalkan ping
       if (resiDitunggu === null || resiDitunggu.trim() === "") {
         return; 
       }
@@ -350,11 +343,10 @@
       var txt = document.getElementById('pingText');
       btn.disabled = true; txt.innerText = 'Mengirim Notifikasi...';
       
-      // 3. Kirim ping BESERTA nomor order langsung ke backend Google Apps Script
       fetch(scriptURL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'ping', pickupCode: resiDitunggu.trim() })
+        body: JSON.stringify({ action: 'ping', orderNumber: resiDitunggu.trim() })
       })
       .then(() => {
         txt.innerText = 'Notifikasi Masuk ke Packer!';

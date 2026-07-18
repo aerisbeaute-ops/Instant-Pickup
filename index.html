@@ -32,8 +32,12 @@
     #cameraError { display: none; background-color: #FEF2F2; color: #991B1B; padding: 16px; border-radius: 16px; border: 1px solid #FECACA; font-size: 13px; font-weight: 600; margin-top: 10px; line-height: 1.5; }
     input[type="file"] { padding: 14px; font-size: 14px; font-weight: 500; color: var(--text-light); }
     input[type="file"]::file-selector-button { background-color: var(--surface); border: 1px solid #E2E8F0; border-radius: 50px; padding: 10px 20px; margin-right: 14px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dark); cursor: pointer; }
-    .help-text { font-size: 12px; color: var(--text-light); margin-top: 10px; font-weight: 500; display: block;}
-    button.submit-btn { width: 100%; padding: 20px; background: linear-gradient(135deg, var(--aeris-maroon), var(--aeris-maroon-hover)); color: white; border: none; border-radius: 50px; font-size: 16px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px; box-shadow: 0 10px 20px rgba(112, 20, 3, 0.25); transition: 0.3s; }
+    .help-text { font-size: 12px; color: var(--text-light); margin-top: 10px; font-weight: 500; display: block; line-height: 1.5;}
+    
+    /* TOMBOL JEPRET LIVE BARU */
+    button.submit-btn { width: 100%; padding: 20px; background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; border-radius: 50px; font-size: 16px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.25); transition: 0.3s; }
+    button.submit-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(16, 185, 129, 0.35); }
+    
     .ping-top-btn { width: 100%; background-color: #EF4444; color: white; padding: 18px; border-radius: 16px; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3); border: none; cursor: pointer; font-family: inherit; margin-bottom: 24px; transition: all 0.3s ease; }
     .ping-top-btn:hover { background-color: #DC2626; transform: translateY(-3px); box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4); }
     .status-badge { margin-top: 24px; text-align: center; font-weight: 700; font-size: 14px; padding: 18px; border-radius: 16px; display: none; align-items: center; justify-content: center; gap: 10px; }
@@ -49,7 +53,7 @@
 </head>
 <body>
 
-  <!-- POP-UP BERHASIL -->
+  <!-- POP-UP BERHASIL SCAN -->
   <div id="scanToast" class="scan-toast">
     <i data-feather="check-circle"></i> Berhasil! Lanjut...
   </div>
@@ -67,12 +71,13 @@
     </button>
 
     <div class="card">
-      <form id="pickupForm" onsubmit="handleFormSubmit(event)">
+      <!-- FORM DIUBAH MENJADI DIV AGAR BISA JEPRET LIVE -->
+      <div id="pickupForm">
         
         <div class="form-group">
-          <label><i data-feather="camera"></i> Scan Resi via Kamera HP</label>
+          <label><i data-feather="camera"></i> Kamera Scanner & Jepret</label>
           <button type="button" id="startCameraBtn" onclick="startCamera()" class="camera-btn">
-            <i data-feather="maximize"></i> Buka Kamera Scanner
+            <i data-feather="maximize"></i> Buka Kamera
           </button>
           <button type="button" id="stopCameraBtn" onclick="stopCamera()" class="camera-btn" style="display:none; background-color: #EF4444;">
             <i data-feather="x-circle"></i> Tutup Kamera
@@ -81,23 +86,22 @@
           <div id="reader"></div>
           
           <div id="cameraError">
-            <b>🚨 Kamera Live Diblokir oleh HP Kamu!</b><br><br>
-            Jangan khawatir! Klik tombol hijau di bawah ini untuk <b>Memfoto Resi</b>. Sistem akan mengekstrak barcode dari foto tersebut secara otomatis. 👇<br><br>
-            
+            <b>🚨 Kamera Live Diblokir!</b><br><br>
+            Klik tombol hijau di bawah untuk <b>Memfoto Resi</b> (Otomatis dipakai sebagai bukti). 👇<br><br>
             <div style="position: relative; overflow: hidden; border-radius: 16px;">
               <input type="file" accept="image/*" onchange="scanResiDariFoto(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 999; cursor: pointer;">
               <button type="button" class="camera-btn" style="background-color: #10B981; pointer-events: none;">
-                <i data-feather="camera"></i> Jepret Foto Resi (Anti-Gagal)
+                <i data-feather="camera"></i> Jepret Foto Manual (Anti-Gagal)
               </button>
             </div>
           </div>
           
-          <span class="help-text">💡 <b>Mode Sapu Jagat Aktif:</b> Arahkan kamera dan sapukan perlahan ke tumpukan paket. Seluruh layar sekarang jadi area baca!</span>
+          <span class="help-text">💡 <b>Cara Baru:</b> Sapukan kamera ke tumpukan resi. Setelah beres, arahkan kamera ke muka driver, lalu klik tombol <b>Jepret Live & Kirim</b> di bawah!</span>
         </div>
 
         <div class="form-group">
           <label for="orderNumber"><i data-feather="list"></i> Daftar Resi / Order Number</label>
-          <textarea id="orderNumber" class="giant-input" name="orderNumber" required rows="4" placeholder="Hasil scan kamera akan muncul di sini otomatis."></textarea>
+          <textarea id="orderNumber" class="giant-input" name="orderNumber" required rows="4" placeholder="Hasil scan kamera akan muncul di sini..."></textarea>
         </div>
 
         <div class="form-group">
@@ -121,14 +125,10 @@
           </select>
           <input type="text" id="picNameOther" placeholder="Ketik nama..." style="display:none; margin-top: 12px;">
         </div>
-        
-        <div class="form-group">
-          <label for="packagePhoto"><i data-feather="image"></i> Foto Bukti Paket</label>
-          <input type="file" id="packagePhoto" name="packagePhoto" accept="image/*" required>
-        </div>
 
-        <button type="submit" id="submitBtn" class="submit-btn"><i data-feather="send" id="btnIcon"></i><span id="btnText">Kirim Report</span></button>
-      </form>
+        <!-- KOTAK UPLOAD FOTO RESMI DIHILANGKAN, DIGANTI TOMBOL JEPRET -->
+        <button type="button" id="submitBtn" onclick="prosesJepretDanKirim()" class="submit-btn"><i data-feather="camera" id="btnIcon"></i><span id="btnText">📸 Jepret Live & Kirim Report</span></button>
+      </div>
     </div>
     <div id="statusMessage" class="status-badge"></div>
   </div>
@@ -138,6 +138,7 @@
     
     // URL APPS SCRIPT KAMU
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwBUqiOOTC_L_j8EmnkT1CHdRVpRlkggTNYC8R5DYAOOUgX1OfCKkCudEcfGj-IQQ3u/exec'; 
+    let fallbackFoto = null; // Menyimpan foto cadangan jika kamera diblokir
     
     function updateClock() {
       var now = new Date();
@@ -150,16 +151,13 @@
 
     function triggerSuksesScan(decodedText) {
       var orderTextArea = document.getElementById('orderNumber');
-      // Hanya tambahkan jika nomor resi belum ada di dalam kotak (mencegah double scan)
       if (!orderTextArea.value.includes(decodedText)) {
         orderTextArea.value = orderTextArea.value === "" ? decodedText : orderTextArea.value + "\n" + decodedText;
         
-        // Munculkan Pop Up Toast
         var toast = document.getElementById('scanToast');
         toast.classList.add('show');
         setTimeout(function() { toast.classList.remove('show'); }, 1500); 
 
-        // Suara "Oke"
         if ('speechSynthesis' in window) {
           var utterance = new SpeechSynthesisUtterance("Oke");
           utterance.lang = 'id-ID'; utterance.rate = 1.5;
@@ -192,16 +190,13 @@
       document.getElementById('reader').style.display = 'block';
 
       html5QrCode = new Html5Qrcode("reader");
-      
-      // KUNCI JURUS SAPU JAGAT: fps dinaikkan ke 30 (super ngebut), dan kotak pembatas (qrbox) DIHAPUS. 
-      // Jadi seluruh area layar kamera akan aktif mencari barcode!
-      const config = { fps: 30 };
+      const config = { fps: 30 }; // SUPER NGEBUT MODE SAPU JAGAT
 
       html5QrCode.start(
         { facingMode: "environment" }, 
         config,
         function(decodedText) { triggerSuksesScan(decodedText); },
-        function(errorMessage) { /* Abaikan error cari fokus */ }
+        function(errorMessage) { /* Abaikan error */ }
       ).catch(function(err) {
         document.getElementById('cameraError').style.display = 'block';
         stopCamera();
@@ -218,25 +213,41 @@
       }
     }
 
+    // FUNGSI FALLBACK: Menyimpan foto upload manual sebagai foto bukti
     function scanResiDariFoto(event) {
       if (event.target.files.length == 0) return;
       var file = event.target.files[0];
       
-      showStatus('loading', 'Membaca barcode dari foto...');
+      showStatus('loading', 'Membaca barcode...');
       
-      if (!html5QrCode) {
-        html5QrCode = new Html5Qrcode("reader");
-      }
+      // Simpan foto ini sebagai cadangan kalau user kirim data nanti
+      var reader = new FileReader();
+      reader.onload = function(e) {
+          var img = new Image();
+          img.onload = function() {
+              var canvas = document.createElement('canvas');
+              var MAX_WIDTH = 600; 
+              var scaleSize = MAX_WIDTH / img.width;
+              canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
+              var ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              fallbackFoto = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
+          };
+          img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
       
+      // Baca Barcode
+      if (!html5QrCode) { html5QrCode = new Html5Qrcode("reader"); }
       html5QrCode.scanFile(file, true)
         .then(decodedText => {
            triggerSuksesScan(decodedText);
-           showStatus('success', '✅ Barcode berhasil dibaca!');
+           showStatus('success', '✅ Barcode terbaca!');
            setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 3000);
            event.target.value = ''; 
         })
         .catch(err => {
-           showStatus('error', '❌ Barcode tidak terbaca! Pastikan foto terang dan fokus pada resi.');
+           showStatus('error', '❌ Barcode tidak terbaca! Tapi foto telah tersimpan sebagai bukti.');
            setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 5000);
            event.target.value = ''; 
         });
@@ -262,82 +273,82 @@
       feather.replace(); 
     }
 
-    function handleFormSubmit(event) {
-      event.preventDefault(); 
-      stopCamera(); 
-      
-      var btn = document.getElementById('submitBtn');
-      btn.disabled = true; 
-      document.getElementById('btnText').innerText = 'Zappp... ⚡'; 
-      showStatus('loading', 'Memproses kilat...');
-      
+    // ========================================================
+    // LOGIKA BARU: MENGAMBIL FOTO DARI KAMERA YANG SEDANG MENYALA
+    // ========================================================
+    function prosesJepretDanKirim() {
       var orderInput = document.getElementById('orderNumber');
-      var originalText = orderInput.value;
-      orderInput.value = originalText.replace(/\n/g, ', ');
+      var courier = document.getElementById('courierName').value;
+      var picSelect = document.getElementById('picNameSelect').value;
+      var picFinal = picSelect === 'Lainnya' ? document.getElementById('picNameOther').value : picSelect;
 
-      var picFinal = document.getElementById('picNameSelect').value === 'Lainnya' ? document.getElementById('picNameOther').value : document.getElementById('picNameSelect').value;
-      
-      var dataKirim = {
-        orderNumber: orderInput.value,
-        courierName: document.getElementById('courierName').value,
-        picName: picFinal
-      };
+      if(!orderInput.value.trim()) { showStatus('error', 'Resi kosong! Harap scan resi terlebih dahulu.'); return; }
+      if(!courier || !picFinal) { showStatus('error', 'Pilih Nama Kurir & PIC terlebih dahulu!'); return; }
 
-      var file = document.getElementById('packagePhoto').files[0];
-      if (!file) {
-        showStatus('error', 'Harap lampirkan foto!');
-        btn.disabled = false; document.getElementById('btnText').innerText = 'Kirim Report';
+      var video = document.querySelector('#reader video');
+      var base64Data = null;
+
+      // 1. Cek apakah Kamera Live nyala, jika iya, ambil screenshotnya!
+      if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
+        var canvas = document.createElement('canvas');
+        var MAX_WIDTH = 600; 
+        var scaleSize = MAX_WIDTH / video.videoWidth;
+        canvas.width = MAX_WIDTH; 
+        canvas.height = video.videoHeight * scaleSize;
+        
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        base64Data = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
+        stopCamera(); // Matikan kamera setelah dijepret
+      } 
+      // 2. Jika kamera mati, cek apakah ada foto manual (fallback)
+      else if (fallbackFoto) {
+        base64Data = fallbackFoto;
+      } 
+      // 3. Jika dua-duanya kosong, minta buka kamera
+      else {
+        showStatus('error', 'Kamera Mati! Harap Buka Kamera dan arahkan ke kurir sebelum menekan Kirim.');
         return;
       }
 
-      var reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = function(e) {
-        var img = new Image();
-        img.src = e.target.result;
-        img.onload = function() {
-          var canvas = document.createElement('canvas');
-          var MAX_WIDTH = 600; 
-          var scaleSize = MAX_WIDTH / img.width;
-          
-          if (img.width > MAX_WIDTH) {
-            canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
-          } else {
-            canvas.width = img.width; canvas.height = img.height;
-          }
-          
-          var ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          
-          dataKirim.packagePhotoBase64 = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
-          dataKirim.packagePhotoType = 'image/jpeg';
-          
-          showStatus('success', '✅ Laporan Masuk Antrean Server! Silakan lanjut.'); 
-          document.getElementById('pickupForm').reset();
-          document.getElementById('picNameOther').style.display = 'none'; 
-          
-          setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 3000);
-          btn.disabled = false; 
-          document.getElementById('btnText').innerText = 'Kirim Report';
+      var btn = document.getElementById('submitBtn');
+      btn.disabled = true; 
+      document.getElementById('btnText').innerText = 'Mengirim Kilat... ⚡'; 
+      showStatus('loading', 'Menyiapkan data...');
 
-          fetch(scriptURL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: 'submitForm', payload: dataKirim })
-          })
-          .catch(error => {
-             console.error('Kirim background gagal:', error);
-          });
-        }
+      var dataKirim = {
+        orderNumber: orderInput.value.replace(/\n/g, ', '),
+        courierName: courier,
+        picName: picFinal,
+        packagePhotoBase64: base64Data,
+        packagePhotoType: 'image/jpeg'
       };
+
+      // Reset UI secara kilat (Magic Trick)
+      showStatus('success', '✅ Jepretan Berhasil! Laporan masuk antrean.'); 
+      document.getElementById('orderNumber').value = '';
+      document.getElementById('courierName').value = '';
+      document.getElementById('picNameSelect').value = '';
+      document.getElementById('picNameOther').style.display = 'none'; 
+      fallbackFoto = null; // Reset foto cadangan
+      
+      setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 3000);
+      btn.disabled = false; 
+      document.getElementById('btnText').innerText = '📸 Jepret Live & Kirim Report';
+
+      // Kirim Data di Background
+      fetch(scriptURL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'submitForm', payload: dataKirim })
+      }).catch(error => { console.error('Gagal kirim background:', error); });
     }
 
+    // PING PINTAR (TETAP SAMA)
     function pingPackerSistem() {
-      var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver. Notifikasi akan langsung dikirim ke sistem Packer:");
-      
-      if (resiDitunggu === null || resiDitunggu.trim() === "") {
-        return; 
-      }
+      var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver. Notifikasi akan langsung dikirim ke layar Packer:");
+      if (resiDitunggu === null || resiDitunggu.trim() === "") { return; }
 
       var btn = document.getElementById('pingBtn');
       var txt = document.getElementById('pingText');

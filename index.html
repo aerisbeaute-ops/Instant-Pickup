@@ -20,11 +20,14 @@
     h2 { font-size: 22px; font-weight: 800; margin: 0 0 12px 0; color: var(--text-dark); letter-spacing: -0.5px; }
     #clockDisplay { font-size: 13px; font-weight: 600; color: var(--text-light); background-color: var(--bg-body); padding: 8px 18px; border-radius: 50px; display: inline-flex; align-items: center; gap: 8px; }
     #clockDisplay svg { width: 14px; height: 14px; }
-    .form-group { margin-bottom: 24px; }
+    .form-group { margin-bottom: 20px; }
     label { display: flex; align-items: center; gap: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; color: var(--text-light); margin-bottom: 10px; }
     label svg { width: 16px; height: 16px; color: var(--aeris-maroon); stroke-width: 2.5; }
-    input[type="text"], select, textarea, input[type="file"] { width: 100%; padding: 18px; background-color: var(--input-bg); border: 2px solid transparent; border-radius: 16px; box-sizing: border-box; font-size: 16px; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dark); font-weight: 600; transition: all 0.3s ease; }
-    textarea.giant-input { font-size: 15px; line-height: 1.6; resize: vertical; background-color: #F1F5F9; color: var(--text-dark); border: 2px dashed #CBD5E1;}
+    input[type="text"], select, textarea, input[type="file"] { width: 100%; padding: 16px; background-color: var(--input-bg); border: 2px solid transparent; border-radius: 16px; box-sizing: border-box; font-size: 15px; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dark); font-weight: 600; transition: all 0.3s ease; }
+    
+    /* UKURAN TEXTAREA DIPERKECIL AGAR KAMERA LEBIH LUAS */
+    textarea.giant-input { font-size: 14px; line-height: 1.5; resize: vertical; background-color: #F1F5F9; color: var(--text-dark); border: 2px dashed #CBD5E1; height: 90px; }
+    
     input:focus, select:focus, textarea:focus { outline: none; background-color: var(--surface); border-color: var(--aeris-maroon); box-shadow: 0 0 0 4px rgba(112, 20, 3, 0.1); }
     .camera-btn { width: 100%; padding: 15px; background-color: #1E293B; color: white; border: none; border-radius: 16px; font-size: 15px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.3s; }
     .camera-btn:hover { background-color: #334155; }
@@ -34,7 +37,6 @@
     input[type="file"]::file-selector-button { background-color: var(--surface); border: 1px solid #E2E8F0; border-radius: 50px; padding: 10px 20px; margin-right: 14px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dark); cursor: pointer; }
     .help-text { font-size: 12px; color: var(--text-light); margin-top: 10px; font-weight: 500; display: block; line-height: 1.5;}
     
-    /* TOMBOL JEPRET LIVE BARU */
     button.submit-btn { width: 100%; padding: 20px; background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; border-radius: 50px; font-size: 16px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.25); transition: 0.3s; }
     button.submit-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(16, 185, 129, 0.35); }
     
@@ -45,7 +47,6 @@
     .badge-success { display: flex; background-color: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
     .badge-error { display: flex; background-color: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
     
-    /* TOAST POP-UP BERHASIL */
     .scan-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #10B981; color: white; padding: 12px 24px; border-radius: 50px; font-weight: 800; font-size: 15px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); z-index: 9999; display: flex; align-items: center; gap: 8px; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
     .scan-toast.show { opacity: 1; visibility: visible; top: 50px; }
     .scan-toast svg { width: 20px; height: 20px; }
@@ -53,9 +54,8 @@
 </head>
 <body>
 
-  <!-- POP-UP BERHASIL SCAN -->
   <div id="scanToast" class="scan-toast">
-    <i data-feather="check-circle"></i> Berhasil! Lanjut...
+    <i data-feather="check-circle"></i> Berhasil!
   </div>
 
   <div class="dashboard-wrapper">
@@ -71,9 +71,37 @@
     </button>
 
     <div class="card">
-      <!-- FORM DIUBAH MENJADI DIV AGAR BISA JEPRET LIVE -->
       <div id="pickupForm">
         
+        <!-- ============================================== -->
+        <!-- FITUR BARU: LOGIN PIC (DIINGAT OLEH SISTEM)  -->
+        <!-- ============================================== -->
+        <div class="form-group" id="loginPicGroup">
+          <label for="picNameSelect"><i data-feather="user"></i> Login Identitas PIC</label>
+          <select id="picNameSelect" required onchange="togglePicInput()">
+            <option value="">-- Pilih Nama Kamu --</option>
+            <option value="Abel">Abel</option><option value="Fadhlan">Fadhlan</option>
+            <option value="Mesa">Mesa</option><option value="Farhan Syah">Farhan Syah</option>
+            <option value="Dede">Dede</option><option value="Michael">Michael</option>
+            <option value="Alan">Alan</option><option value="Chalza">Chalza</option>
+            <option value="Rezi">Rezi</option><option value="Lainnya">Lainnya (Ketik Sendiri)...</option>
+          </select>
+          <input type="text" id="picNameOther" placeholder="Ketik nama..." style="display:none; margin-top: 12px;">
+          <button type="button" onclick="simpanPIC()" class="camera-btn" style="margin-top: 12px; background-color: var(--aeris-maroon);">
+            <i data-feather="save"></i> Simpan Nama & Mulai
+          </button>
+        </div>
+
+        <div class="form-group" id="activePicGroup" style="display:none; background-color: #ECFDF5; padding: 18px; border-radius: 16px; border: 2px solid #A7F3D0;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 15px; font-weight: 800; color: #065F46; display: flex; align-items: center; gap: 8px;">
+              <i data-feather="user-check"></i> <span id="displayPicName"></span>
+            </div>
+            <button type="button" onclick="gantiPIC()" style="background: none; border: none; color: #059669; font-weight: 700; cursor: pointer; text-decoration: underline; font-family: inherit; font-size: 13px;">Ganti Akun</button>
+          </div>
+        </div>
+        <!-- ============================================== -->
+
         <div class="form-group">
           <label><i data-feather="camera"></i> Kamera Scanner & Jepret</label>
           <button type="button" id="startCameraBtn" onclick="startCamera()" class="camera-btn">
@@ -87,7 +115,7 @@
           
           <div id="cameraError">
             <b>🚨 Kamera Live Diblokir!</b><br><br>
-            Klik tombol hijau di bawah untuk <b>Memfoto Resi</b> (Otomatis dipakai sebagai bukti). 👇<br><br>
+            Klik tombol hijau di bawah untuk <b>Memfoto Resi</b>. 👇<br><br>
             <div style="position: relative; overflow: hidden; border-radius: 16px;">
               <input type="file" accept="image/*" onchange="scanResiDariFoto(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 999; cursor: pointer;">
               <button type="button" class="camera-btn" style="background-color: #10B981; pointer-events: none;">
@@ -96,37 +124,27 @@
             </div>
           </div>
           
-          <span class="help-text">💡 <b>Cara Baru:</b> Sapukan kamera ke tumpukan resi. Setelah beres, arahkan kamera ke muka driver, lalu klik tombol <b>Jepret Live & Kirim</b> di bawah!</span>
+          <span class="help-text">💡 <b>Cara Cepat:</b> Sapukan kamera ke tumpukan resi. Setelah beres, arahkan kamera ke muka driver, lalu klik tombol <b>Jepret Live & Kirim</b>!</span>
         </div>
 
         <div class="form-group">
           <label for="orderNumber"><i data-feather="list"></i> Daftar Resi / Order Number</label>
-          <textarea id="orderNumber" class="giant-input" name="orderNumber" required rows="4" placeholder="Hasil scan kamera akan muncul di sini..."></textarea>
+          <!-- Tinggi textarea sudah dikurangi via CSS agar tidak menutupi kamera -->
+          <textarea id="orderNumber" class="giant-input" name="orderNumber" required placeholder="Hasil scan resi akan masuk ke sini..."></textarea>
         </div>
 
         <div class="form-group">
           <label for="courierName"><i data-feather="truck"></i> Nama Kurir</label>
           <select id="courierName" name="courierName" required>
             <option value="">-- Pilih Ekspedisi --</option>
-            <option value="Gojek">Gojek</option><option value="Grab">Grab</option>
-            <option value="Shopee Express">Shopee Express</option><option value="Lalamove">Lalamove</option>
+            <option value="Shopee Express">Shopee Express</option>
+            <option value="Gojek">Gojek</option>
+            <option value="Grab">Grab</option>
+            <option value="Lalamove">Lalamove</option>
             <option value="Lainnya">Lainnya...</option>
           </select>
         </div>
-        <div class="form-group">
-          <label for="picNameSelect"><i data-feather="user"></i> PIC Instant</label>
-          <select id="picNameSelect" name="picName" required onchange="togglePicInput()">
-            <option value="">-- Pilih Nama PIC --</option>
-            <option value="Abel">Abel</option><option value="Fadhlan">Fadhlan</option>
-            <option value="Mesa">Mesa</option><option value="Farhan Syah">Farhan Syah</option>
-            <option value="Dede">Dede</option><option value="Michael">Michael</option>
-            <option value="Alan">Alan</option><option value="Chalza">Chalza</option>
-            <option value="Rezi">Rezi</option><option value="Lainnya">Lainnya (Ketik Sendiri)...</option>
-          </select>
-          <input type="text" id="picNameOther" placeholder="Ketik nama..." style="display:none; margin-top: 12px;">
-        </div>
 
-        <!-- KOTAK UPLOAD FOTO RESMI DIHILANGKAN, DIGANTI TOMBOL JEPRET -->
         <button type="button" id="submitBtn" onclick="prosesJepretDanKirim()" class="submit-btn"><i data-feather="camera" id="btnIcon"></i><span id="btnText">📸 Jepret Live & Kirim Report</span></button>
       </div>
     </div>
@@ -135,10 +153,9 @@
 
   <script>
     feather.replace();
-    
-    // URL APPS SCRIPT KAMU
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwBUqiOOTC_L_j8EmnkT1CHdRVpRlkggTNYC8R5DYAOOUgX1OfCKkCudEcfGj-IQQ3u/exec'; 
-    let fallbackFoto = null; // Menyimpan foto cadangan jika kamera diblokir
+    let fallbackFoto = null; 
+    let html5QrCode;
     
     function updateClock() {
       var now = new Date();
@@ -147,11 +164,68 @@
     }
     setInterval(updateClock, 1000); updateClock(); 
 
-    let html5QrCode;
+    // ==========================================
+    // LOGIKA LOGIN PIC (LOCAL STORAGE)
+    // ==========================================
+    window.onload = function() {
+      cekLoginPIC();
+    };
 
+    function cekLoginPIC() {
+      var savedName = localStorage.getItem('aeris_pic_name');
+      if (savedName) {
+        document.getElementById('loginPicGroup').style.display = 'none';
+        document.getElementById('activePicGroup').style.display = 'block';
+        document.getElementById('displayPicName').innerText = savedName;
+      } else {
+        document.getElementById('loginPicGroup').style.display = 'block';
+        document.getElementById('activePicGroup').style.display = 'none';
+      }
+    }
+
+    function simpanPIC() {
+      var select = document.getElementById('picNameSelect').value;
+      var other = document.getElementById('picNameOther').value;
+      var finalName = select === 'Lainnya' ? other : select;
+      
+      if(!finalName.trim()) {
+        alert('Ups! Pilih atau ketik nama kamu dulu ya.');
+        return;
+      }
+      
+      localStorage.setItem('aeris_pic_name', finalName.trim());
+      cekLoginPIC();
+    }
+
+    function gantiPIC() {
+      localStorage.removeItem('aeris_pic_name');
+      cekLoginPIC();
+    }
+
+    function togglePicInput() {
+      var select = document.getElementById('picNameSelect');
+      var inputOther = document.getElementById('picNameOther');
+      if (select.value === "Lainnya") {
+        inputOther.style.display = "block"; inputOther.required = true;
+      } else {
+        inputOther.style.display = "none"; inputOther.required = false;
+      }
+    }
+
+    // ==========================================
+    // LOGIKA AUTO-DETECT KURIR DARI BARCODE
+    // ==========================================
     function triggerSuksesScan(decodedText) {
       var orderTextArea = document.getElementById('orderNumber');
+      
       if (!orderTextArea.value.includes(decodedText)) {
+        // DETEKSI PREFIX OTOMATIS
+        if (decodedText.startsWith('260')) {
+          document.getElementById('courierName').value = 'Shopee Express';
+        } else if (decodedText.startsWith('568')) {
+          document.getElementById('courierName').value = 'Gojek';
+        }
+
         orderTextArea.value = orderTextArea.value === "" ? decodedText : orderTextArea.value + "\n" + decodedText;
         
         var toast = document.getElementById('scanToast');
@@ -166,6 +240,9 @@
       }
     }
 
+    // ==========================================
+    // KAMERA & FOTO SYSTEM
+    // ==========================================
     function startCamera() {
       document.getElementById('cameraError').style.display = 'none';
       document.getElementById('startCameraBtn').style.display = 'none';
@@ -190,7 +267,7 @@
       document.getElementById('reader').style.display = 'block';
 
       html5QrCode = new Html5Qrcode("reader");
-      const config = { fps: 30 }; // SUPER NGEBUT MODE SAPU JAGAT
+      const config = { fps: 30 }; 
 
       html5QrCode.start(
         { facingMode: "environment" }, 
@@ -213,14 +290,12 @@
       }
     }
 
-    // FUNGSI FALLBACK: Menyimpan foto upload manual sebagai foto bukti
     function scanResiDariFoto(event) {
       if (event.target.files.length == 0) return;
       var file = event.target.files[0];
       
       showStatus('loading', 'Membaca barcode...');
       
-      // Simpan foto ini sebagai cadangan kalau user kirim data nanti
       var reader = new FileReader();
       reader.onload = function(e) {
           var img = new Image();
@@ -237,7 +312,6 @@
       };
       reader.readAsDataURL(file);
       
-      // Baca Barcode
       if (!html5QrCode) { html5QrCode = new Html5Qrcode("reader"); }
       html5QrCode.scanFile(file, true)
         .then(decodedText => {
@@ -253,16 +327,6 @@
         });
     }
 
-    function togglePicInput() {
-      var select = document.getElementById('picNameSelect');
-      var inputOther = document.getElementById('picNameOther');
-      if (select.value === "Lainnya") {
-        inputOther.style.display = "block"; inputOther.required = true;
-      } else {
-        inputOther.style.display = "none"; inputOther.required = false;
-      }
-    }
-
     function showStatus(type, text) {
       var statusDiv = document.getElementById('statusMessage');
       statusDiv.style.display = 'flex';
@@ -273,42 +337,40 @@
       feather.replace(); 
     }
 
-    // ========================================================
-    // LOGIKA BARU: MENGAMBIL FOTO DARI KAMERA YANG SEDANG MENYALA
-    // ========================================================
     function prosesJepretDanKirim() {
+      // 1. Cek Login PIC
+      var activePIC = localStorage.getItem('aeris_pic_name');
+      if(!activePIC) {
+        showStatus('error', '🚨 Harap Login/Simpan Nama PIC kamu di bagian atas terlebih dahulu!');
+        document.getElementById('loginPicGroup').scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+
       var orderInput = document.getElementById('orderNumber');
       var courier = document.getElementById('courierName').value;
-      var picSelect = document.getElementById('picNameSelect').value;
-      var picFinal = picSelect === 'Lainnya' ? document.getElementById('picNameOther').value : picSelect;
 
       if(!orderInput.value.trim()) { showStatus('error', 'Resi kosong! Harap scan resi terlebih dahulu.'); return; }
-      if(!courier || !picFinal) { showStatus('error', 'Pilih Nama Kurir & PIC terlebih dahulu!'); return; }
+      if(!courier) { showStatus('error', 'Pilih Nama Kurir terlebih dahulu!'); return; }
 
       var video = document.querySelector('#reader video');
       var base64Data = null;
 
-      // 1. Cek apakah Kamera Live nyala, jika iya, ambil screenshotnya!
       if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
         var canvas = document.createElement('canvas');
         var MAX_WIDTH = 600; 
         var scaleSize = MAX_WIDTH / video.videoWidth;
         canvas.width = MAX_WIDTH; 
         canvas.height = video.videoHeight * scaleSize;
-        
         var ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
         base64Data = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
-        stopCamera(); // Matikan kamera setelah dijepret
+        stopCamera(); 
       } 
-      // 2. Jika kamera mati, cek apakah ada foto manual (fallback)
       else if (fallbackFoto) {
         base64Data = fallbackFoto;
       } 
-      // 3. Jika dua-duanya kosong, minta buka kamera
       else {
-        showStatus('error', 'Kamera Mati! Harap Buka Kamera dan arahkan ke kurir sebelum menekan Kirim.');
+        showStatus('error', 'Kamera Mati! Harap Buka Kamera dan arahkan ke wajah kurir sebelum menekan Kirim.');
         return;
       }
 
@@ -320,24 +382,20 @@
       var dataKirim = {
         orderNumber: orderInput.value.replace(/\n/g, ', '),
         courierName: courier,
-        picName: picFinal,
+        picName: activePIC, // Menggunakan nama yang tersimpan di sistem
         packagePhotoBase64: base64Data,
         packagePhotoType: 'image/jpeg'
       };
 
-      // Reset UI secara kilat (Magic Trick)
       showStatus('success', '✅ Jepretan Berhasil! Laporan masuk antrean.'); 
       document.getElementById('orderNumber').value = '';
       document.getElementById('courierName').value = '';
-      document.getElementById('picNameSelect').value = '';
-      document.getElementById('picNameOther').style.display = 'none'; 
-      fallbackFoto = null; // Reset foto cadangan
+      fallbackFoto = null; 
       
       setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 3000);
       btn.disabled = false; 
       document.getElementById('btnText').innerText = '📸 Jepret Live & Kirim Report';
 
-      // Kirim Data di Background
       fetch(scriptURL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -345,7 +403,6 @@
       }).catch(error => { console.error('Gagal kirim background:', error); });
     }
 
-    // PING PINTAR (TETAP SAMA)
     function pingPackerSistem() {
       var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver. Notifikasi akan langsung dikirim ke layar Packer:");
       if (resiDitunggu === null || resiDitunggu.trim() === "") { return; }

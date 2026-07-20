@@ -12,11 +12,9 @@
   
   <style>
     :root { --aeris-maroon: #701403; --aeris-maroon-hover: #8A1904; --bg-body: #F3F5F9; --surface: #FFFFFF; --text-dark: #1E293B; --text-light: #64748B; --input-bg: #F8FAFC; }
-    /* PADDING BODY DIKURANGI */
     body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-body); color: var(--text-dark); margin: 0; padding: 12px 10px 24px 10px; display: flex; justify-content: center; }
     .dashboard-wrapper { width: 100%; max-width: 450px; }
     
-    /* PADDING CARD & MARGIN DIKURANGI */
     .card { background-color: var(--surface); border-radius: 20px; padding: 20px 16px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03); margin-bottom: 12px; }
     .card-header { text-align: center; display: flex; flex-direction: column; align-items: center; padding: 16px; }
     .header-icon-wrapper { background: linear-gradient(135deg, rgba(112,20,3,0.1), rgba(112,20,3,0.02)); padding: 12px; border-radius: 16px; margin-bottom: 8px; color: var(--aeris-maroon); }
@@ -29,17 +27,13 @@
     label { display: flex; align-items: center; gap: 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 800; color: var(--text-light); margin-bottom: 6px; }
     label svg { width: 14px; height: 14px; color: var(--aeris-maroon); stroke-width: 2.5; }
     
-    /* INPUT, SELECT, TEXTAREA DIBIKIN LEBIH RAMPING */
     input[type="text"], select, textarea, input[type="file"] { width: 100%; padding: 12px 14px; background-color: var(--input-bg); border: 2px solid transparent; border-radius: 12px; box-sizing: border-box; font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dark); font-weight: 600; transition: all 0.3s ease; }
-    
-    /* TINGGI TEXTAREA RESI DIKURANGI */
     textarea.giant-input { font-size: 13px; line-height: 1.4; resize: vertical; background-color: #F1F5F9; color: var(--text-dark); border: 2px dashed #CBD5E1; height: 60px; }
     input:focus, select:focus, textarea:focus { outline: none; background-color: var(--surface); border-color: var(--aeris-maroon); box-shadow: 0 0 0 4px rgba(112, 20, 3, 0.1); }
     
     .camera-btn { width: 100%; padding: 12px; background-color: #1E293B; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.3s; }
     .camera-btn:hover { background-color: #334155; }
     
-    /* TINGGI KAMERA DIBATASI AGAR TIDAK MENUHI LAYAR */
     #reader { width: 100%; margin-top: 8px; display: none; border-radius: 12px; overflow: hidden; border: 2px solid var(--aeris-maroon); background-color: #000; }
     #reader video { max-height: 35vh; object-fit: cover; } 
     
@@ -48,11 +42,9 @@
     input[type="file"]::file-selector-button { background-color: var(--surface); border: 1px solid #E2E8F0; border-radius: 50px; padding: 8px 16px; margin-right: 12px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dark); cursor: pointer; }
     .help-text { font-size: 11px; color: var(--text-light); margin-top: 6px; font-weight: 500; display: block; line-height: 1.4;}
     
-    /* TOMBOL SUBMIT DIBIKIN LEBIH RAMPING */
     button.submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; border-radius: 50px; font-size: 15px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 8px; box-shadow: 0 8px 15px rgba(16, 185, 129, 0.25); transition: 0.3s; }
     button.submit-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.35); }
     
-    /* TOMBOL PING DI-SLIM-KAN */
     .ping-top-btn { width: 100%; background-color: #EF4444; color: white; padding: 14px; border-radius: 12px; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3); border: none; cursor: pointer; font-family: inherit; margin-bottom: 12px; transition: all 0.3s ease; }
     .ping-top-btn:hover { background-color: #DC2626; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4); }
     
@@ -79,7 +71,6 @@
       <div id="clockDisplay"><i data-feather="clock" stroke-width="2.5"></i><span id="timeText">Memuat waktu...</span></div>
     </div>
 
-    <!-- TOMBOL PING PINTAR -->
     <button type="button" class="ping-top-btn" id="pingBtn" onclick="pingPackerSistem()" title="Ping Tim Packer">
       <i data-feather="bell" id="pingIcon"></i> <span id="pingText">Ping Tim Packer</span>
     </button>
@@ -104,7 +95,7 @@
           </button>
         </div>
 
-        <!-- INFO PIC AKTIF DENGAN UKURAN RAMPING -->
+        <!-- INFO PIC AKTIF -->
         <div class="form-group" id="activePicGroup" style="display:none; background-color: #ECFDF5; padding: 12px 16px; border-radius: 12px; border: 2px solid #A7F3D0;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div style="font-size: 14px; font-weight: 800; color: #065F46; display: flex; align-items: center; gap: 8px;">
@@ -135,8 +126,7 @@
               </button>
             </div>
           </div>
-          
-          <span class="help-text">💡 Sapukan kamera ke resi, arahkan ke driver, lalu jepret!</span>
+          <span class="help-text">💡 <b>Watermark Otomatis:</b> Foto hasil jepretan kamu akan otomatis tercetak lokasi, nama, waktu, dan nomor resi!</span>
         </div>
 
         <div class="form-group">
@@ -165,8 +155,11 @@
   <script>
     feather.replace();
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwBUqiOOTC_L_j8EmnkT1CHdRVpRlkggTNYC8R5DYAOOUgX1OfCKkCudEcfGj-IQQ3u/exec'; 
-    let fallbackFoto = null; 
+    let fallbackImageObj = null; // Diubah untuk sistem Watermark
     let html5QrCode;
+    
+    // ALAMAT PICKUP DEFAULT (Bisa kamu ganti di sini)
+    const ALAMAT_PICKUP = "Gudang AERIS BEAUTE";
     
     function updateClock() {
       var now = new Date();
@@ -176,10 +169,9 @@
     setInterval(updateClock, 1000); updateClock(); 
 
     // ==========================================
-    // LOGIKA LOGIN PIC (LOCAL STORAGE)
+    // LOGIKA LOGIN PIC
     // ==========================================
     window.onload = function() { cekLoginPIC(); };
-
     function cekLoginPIC() {
       var savedName = localStorage.getItem('aeris_pic_name');
       if (savedName) {
@@ -191,20 +183,15 @@
         document.getElementById('activePicGroup').style.display = 'none';
       }
     }
-
     function simpanPIC() {
       var select = document.getElementById('picNameSelect').value;
       var other = document.getElementById('picNameOther').value;
       var finalName = select === 'Lainnya' ? other : select;
-      
       if(!finalName.trim()) { alert('Ups! Pilih atau ketik nama kamu dulu ya.'); return; }
-      
       localStorage.setItem('aeris_pic_name', finalName.trim());
       cekLoginPIC();
     }
-
     function gantiPIC() { localStorage.removeItem('aeris_pic_name'); cekLoginPIC(); }
-
     function togglePicInput() {
       var select = document.getElementById('picNameSelect');
       var inputOther = document.getElementById('picNameOther');
@@ -220,13 +207,9 @@
     // ==========================================
     function triggerSuksesScan(decodedText) {
       var orderTextArea = document.getElementById('orderNumber');
-      
       if (!orderTextArea.value.includes(decodedText)) {
-        if (decodedText.startsWith('260')) {
-          document.getElementById('courierName').value = 'Shopee Express';
-        } else if (decodedText.startsWith('584')) {
-          document.getElementById('courierName').value = 'Gojek';
-        }
+        if (decodedText.startsWith('260')) { document.getElementById('courierName').value = 'Shopee Express'; } 
+        else if (decodedText.startsWith('568')) { document.getElementById('courierName').value = 'Gojek'; }
 
         orderTextArea.value = orderTextArea.value === "" ? decodedText : orderTextArea.value + "\n" + decodedText;
         
@@ -243,7 +226,7 @@
     }
 
     // ==========================================
-    // KAMERA & FOTO SYSTEM
+    // KAMERA SYSTEM
     // ==========================================
     function startCamera() {
       document.getElementById('cameraError').style.display = 'none';
@@ -251,10 +234,7 @@
       
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ video: true })
-          .then(function(stream) {
-             stream.getTracks().forEach(track => track.stop());
-             jalankanScanner();
-          })
+          .then(function(stream) { stream.getTracks().forEach(track => track.stop()); jalankanScanner(); })
           .catch(function(err) {
              document.getElementById('cameraError').style.display = 'block';
              document.getElementById('startCameraBtn').style.display = 'flex';
@@ -267,16 +247,11 @@
       document.getElementById('reader').style.display = 'block';
 
       html5QrCode = new Html5Qrcode("reader");
-      const config = { fps: 30 }; 
-
-      html5QrCode.start(
-        { facingMode: "environment" }, 
-        config,
+      html5QrCode.start({ facingMode: "environment" }, { fps: 30 },
         function(decodedText) { triggerSuksesScan(decodedText); },
-        function(errorMessage) { /* Abaikan error */ }
+        function(errorMessage) {}
       ).catch(function(err) {
-        document.getElementById('cameraError').style.display = 'block';
-        stopCamera();
+        document.getElementById('cameraError').style.display = 'block'; stopCamera();
       });
     }
 
@@ -298,15 +273,7 @@
       var reader = new FileReader();
       reader.onload = function(e) {
           var img = new Image();
-          img.onload = function() {
-              var canvas = document.createElement('canvas');
-              var MAX_WIDTH = 600; 
-              var scaleSize = MAX_WIDTH / img.width;
-              canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
-              var ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-              fallbackFoto = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
-          };
+          img.onload = function() { fallbackImageObj = img; }; // Simpan sebagai Object Gambar untuk di-Watermark nanti
           img.src = e.target.result;
       };
       reader.readAsDataURL(file);
@@ -336,6 +303,32 @@
       feather.replace(); 
     }
 
+    // ========================================================
+    // JURUS BARU: MEMASANG WATERMARK KE DALAM CANVAS FOTO
+    // ========================================================
+    function applyWatermark(canvas, ctx, resiStr, courier, pic) {
+      var rectHeight = 105;
+      
+      // Bikin background kotak semi transparan di bagian bawah foto
+      ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+      ctx.fillRect(0, canvas.height - rectHeight, canvas.width, rectHeight);
+      
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "bold 15px Arial";
+      
+      var now = new Date();
+      var waktu = now.toLocaleDateString('id-ID') + ' ' + now.toLocaleTimeString('id-ID');
+      
+      // Jika resi terlalu banyak, potong tampilannya di watermark agar tidak tumpah
+      if(resiStr.length > 50) { resiStr = resiStr.substring(0, 50) + "..."; }
+
+      // Cetak teks ke atas gambar
+      ctx.fillText("Waktu    : " + waktu, 15, canvas.height - 80);
+      ctx.fillText("Lokasi   : " + ALAMAT_PICKUP, 15, canvas.height - 60);
+      ctx.fillText("Resi       : " + resiStr, 15, canvas.height - 40);
+      ctx.fillText("PIC        : " + pic + "  |  Kurir: " + courier, 15, canvas.height - 18);
+    }
+
     function prosesJepretDanKirim() {
       var activePIC = localStorage.getItem('aeris_pic_name');
       if(!activePIC) {
@@ -346,25 +339,40 @@
 
       var orderInput = document.getElementById('orderNumber');
       var courier = document.getElementById('courierName').value;
+      var resiString = orderInput.value.replace(/\n/g, ', ');
 
       if(!orderInput.value.trim()) { showStatus('error', 'Resi kosong! Harap scan resi terlebih dahulu.'); return; }
       if(!courier) { showStatus('error', 'Pilih Nama Kurir terlebih dahulu!'); return; }
 
       var video = document.querySelector('#reader video');
       var base64Data = null;
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+      var MAX_WIDTH = 600; 
 
+      // 1. Ambil foto dari Video Live dan pasang Watermark
       if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
-        var canvas = document.createElement('canvas');
-        var MAX_WIDTH = 600; 
         var scaleSize = MAX_WIDTH / video.videoWidth;
         canvas.width = MAX_WIDTH; 
         canvas.height = video.videoHeight * scaleSize;
-        var ctx = canvas.getContext('2d');
+        
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        base64Data = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
+        applyWatermark(canvas, ctx, resiString, courier, activePIC);
+        
+        base64Data = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
         stopCamera(); 
       } 
-      else if (fallbackFoto) { base64Data = fallbackFoto; } 
+      // 2. Ambil foto dari Fallback (Upload Manual) dan pasang Watermark
+      else if (fallbackImageObj) { 
+        var scaleSize = MAX_WIDTH / fallbackImageObj.width;
+        canvas.width = MAX_WIDTH; 
+        canvas.height = fallbackImageObj.height * scaleSize;
+        
+        ctx.drawImage(fallbackImageObj, 0, 0, canvas.width, canvas.height);
+        applyWatermark(canvas, ctx, resiString, courier, activePIC);
+        
+        base64Data = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+      } 
       else {
         showStatus('error', 'Kamera Mati! Harap Buka Kamera dan arahkan ke wajah kurir sebelum menekan Kirim.');
         return;
@@ -373,10 +381,10 @@
       var btn = document.getElementById('submitBtn');
       btn.disabled = true; 
       document.getElementById('btnText').innerText = 'Mengirim Kilat... ⚡'; 
-      showStatus('loading', 'Menyiapkan data...');
+      showStatus('loading', 'Menyiapkan data watermark...');
 
       var dataKirim = {
-        orderNumber: orderInput.value.replace(/\n/g, ', '),
+        orderNumber: resiString,
         courierName: courier,
         picName: activePIC, 
         packagePhotoBase64: base64Data,
@@ -386,7 +394,7 @@
       showStatus('success', '✅ Jepretan Berhasil! Laporan masuk antrean.'); 
       document.getElementById('orderNumber').value = '';
       document.getElementById('courierName').value = '';
-      fallbackFoto = null; 
+      fallbackImageObj = null; 
       
       setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 3000);
       btn.disabled = false; 

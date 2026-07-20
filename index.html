@@ -126,7 +126,7 @@
               </button>
             </div>
           </div>
-          <span class="help-text">💡 <b>Watermark Otomatis:</b> Foto hasil jepretan kamu akan otomatis tercetak lokasi, nama, waktu, dan nomor resi!</span>
+          <span class="help-text">💡 <b>Watermark HD:</b> Foto akan dicap otomatis dengan Lokasi, Jam, Resi, dan Nama!</span>
         </div>
 
         <div class="form-group">
@@ -155,11 +155,8 @@
   <script>
     feather.replace();
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwBUqiOOTC_L_j8EmnkT1CHdRVpRlkggTNYC8R5DYAOOUgX1OfCKkCudEcfGj-IQQ3u/exec'; 
-    let fallbackImageObj = null; // Diubah untuk sistem Watermark
+    let fallbackImageObj = null; 
     let html5QrCode;
-    
-    // ALAMAT PICKUP DEFAULT (Bisa kamu ganti di sini)
-    const ALAMAT_PICKUP = "Gudang AERIS BEAUTE";
     
     function updateClock() {
       var now = new Date();
@@ -203,7 +200,7 @@
     }
 
     // ==========================================
-    // LOGIKA AUTO-DETECT KURIR DARI BARCODE
+    // LOGIKA AUTO-DETECT KURIR
     // ==========================================
     function triggerSuksesScan(decodedText) {
       var orderTextArea = document.getElementById('orderNumber');
@@ -273,7 +270,7 @@
       var reader = new FileReader();
       reader.onload = function(e) {
           var img = new Image();
-          img.onload = function() { fallbackImageObj = img; }; // Simpan sebagai Object Gambar untuk di-Watermark nanti
+          img.onload = function() { fallbackImageObj = img; }; 
           img.src = e.target.result;
       };
       reader.readAsDataURL(file);
@@ -304,29 +301,31 @@
     }
 
     // ========================================================
-    // JURUS BARU: MEMASANG WATERMARK KE DALAM CANVAS FOTO
+    // WATERMARK SYSTEM (UKURAN DIPERBESAR & LEBIH TEGAS)
     // ========================================================
     function applyWatermark(canvas, ctx, resiStr, courier, pic) {
-      var rectHeight = 105;
+      var ALAMAT_PICKUP = "Gudang AERIS BEAUTE";
+      var rectHeight = 150; // Kotak hitam diperbesar
       
-      // Bikin background kotak semi transparan di bagian bawah foto
-      ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+      // Background hitam semi transparan di bagian bawah foto
+      ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
       ctx.fillRect(0, canvas.height - rectHeight, canvas.width, rectHeight);
-      
-      ctx.fillStyle = "#FFFFFF";
-      ctx.font = "bold 15px Arial";
       
       var now = new Date();
       var waktu = now.toLocaleDateString('id-ID') + ' ' + now.toLocaleTimeString('id-ID');
-      
-      // Jika resi terlalu banyak, potong tampilannya di watermark agar tidak tumpah
-      if(resiStr.length > 50) { resiStr = resiStr.substring(0, 50) + "..."; }
+      if(resiStr.length > 55) { resiStr = resiStr.substring(0, 52) + "..."; }
 
-      // Cetak teks ke atas gambar
-      ctx.fillText("Waktu    : " + waktu, 15, canvas.height - 80);
-      ctx.fillText("Lokasi   : " + ALAMAT_PICKUP, 15, canvas.height - 60);
-      ctx.fillText("Resi       : " + resiStr, 15, canvas.height - 40);
-      ctx.fillText("PIC        : " + pic + "  |  Kurir: " + courier, 15, canvas.height - 18);
+      // Teks Putih Standar
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "bold 18px Arial"; 
+      ctx.fillText("WAKTU  : " + waktu, 15, canvas.height - 110);
+      ctx.fillText("LOKASI : " + ALAMAT_PICKUP, 15, canvas.height - 80);
+      ctx.fillText("RESI      : " + resiStr, 15, canvas.height - 50);
+      
+      // Teks Kuning Stabilo untuk PIC & Kurir
+      ctx.fillStyle = "#FDE047"; 
+      ctx.font = "bold 18px Arial";
+      ctx.fillText("PIC: " + pic + "  |  KURIR: " + courier, 15, canvas.height - 20);
     }
 
     function prosesJepretDanKirim() {
@@ -348,9 +347,8 @@
       var base64Data = null;
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
-      var MAX_WIDTH = 600; 
+      var MAX_WIDTH = 800; // Resolusi foto diperbesar sedikit agar font lebih tajam
 
-      // 1. Ambil foto dari Video Live dan pasang Watermark
       if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
         var scaleSize = MAX_WIDTH / video.videoWidth;
         canvas.width = MAX_WIDTH; 
@@ -362,7 +360,6 @@
         base64Data = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
         stopCamera(); 
       } 
-      // 2. Ambil foto dari Fallback (Upload Manual) dan pasang Watermark
       else if (fallbackImageObj) { 
         var scaleSize = MAX_WIDTH / fallbackImageObj.width;
         canvas.width = MAX_WIDTH; 
@@ -381,7 +378,7 @@
       var btn = document.getElementById('submitBtn');
       btn.disabled = true; 
       document.getElementById('btnText').innerText = 'Mengirim Kilat... ⚡'; 
-      showStatus('loading', 'Menyiapkan data watermark...');
+      showStatus('loading', 'Mencetak Watermark & Mengirim...');
 
       var dataKirim = {
         orderNumber: resiString,

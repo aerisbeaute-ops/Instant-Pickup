@@ -412,14 +412,13 @@
       var txt = document.getElementById('pingText');
       btn.disabled = true; txt.innerText = 'Mengirim Notifikasi...';
       
-      fetch(scriptURL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'ping', orderNumber: resiDitunggu.trim() })
-      })
+      // Kirim via GET dengan URL parameter kilat
+      var pingURL = scriptURL + '?action=ping&resi=' + encodeURIComponent(resiDitunggu.trim());
+
+      fetch(pingURL, { method: 'GET', mode: 'no-cors' })
       .then(() => {
-        txt.innerText = 'Notifikasi Masuk ke Packer!';
-        setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 5000);
+        txt.innerText = '⚡ Notifikasi Masuk ke Packer!';
+        setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 4000);
       })
       .catch(err => {
         txt.innerText = 'Gagal Mengirim!';

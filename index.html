@@ -154,12 +154,7 @@
 
   <script>
     feather.replace();
-    
-    // =========================================================================
-    // BARIS 183: PASTE URL DEPLOY BARU INSTANT PICKUP DI SINI!
-    // =========================================================================
-    const scriptURL = https://script.google.com/macros/s/AKfycbxu256ZC1tMi1QQg02XBAbo0jFGSMVIO-X5bGug5BIFrLadai71_GK-lgDvcJSA0Jpo/exec'; 
-    
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwBUqiOOTC_L_j8EmnkT1CHdRVpRlkggTNYC8R5DYAOOUgX1OfCKkCudEcfGj-IQQ3u/exec'; 
     let fallbackImageObj = null; 
     let html5QrCode;
     
@@ -306,12 +301,13 @@
     }
 
     // ========================================================
-    // WATERMARK SYSTEM
+    // WATERMARK SYSTEM (UKURAN DIPERBESAR & LEBIH TEGAS)
     // ========================================================
     function applyWatermark(canvas, ctx, resiStr, courier, pic) {
       var ALAMAT_PICKUP = "Gudang AERIS BEAUTE";
-      var rectHeight = 150; 
+      var rectHeight = 150; // Kotak hitam diperbesar
       
+      // Background hitam semi transparan di bagian bawah foto
       ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
       ctx.fillRect(0, canvas.height - rectHeight, canvas.width, rectHeight);
       
@@ -319,12 +315,14 @@
       var waktu = now.toLocaleDateString('id-ID') + ' ' + now.toLocaleTimeString('id-ID');
       if(resiStr.length > 55) { resiStr = resiStr.substring(0, 52) + "..."; }
 
+      // Teks Putih Standar
       ctx.fillStyle = "#FFFFFF";
       ctx.font = "bold 18px Arial"; 
       ctx.fillText("WAKTU  : " + waktu, 15, canvas.height - 110);
       ctx.fillText("LOKASI : " + ALAMAT_PICKUP, 15, canvas.height - 80);
       ctx.fillText("RESI      : " + resiStr, 15, canvas.height - 50);
       
+      // Teks Kuning Stabilo untuk PIC & Kurir
       ctx.fillStyle = "#FDE047"; 
       ctx.font = "bold 18px Arial";
       ctx.fillText("PIC: " + pic + "  |  KURIR: " + courier, 15, canvas.height - 20);
@@ -349,7 +347,7 @@
       var base64Data = null;
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
-      var MAX_WIDTH = 800; 
+      var MAX_WIDTH = 800; // Resolusi foto diperbesar sedikit agar font lebih tajam
 
       if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
         var scaleSize = MAX_WIDTH / video.videoWidth;
@@ -406,30 +404,24 @@
       }).catch(error => { console.error('Gagal kirim background:', error); });
     }
 
-    // ==========================================
-    // FUNGSI PING TIM PACKER (MODE STABIL NO-CORS)
-    // ==========================================
     function pingPackerSistem() {
       var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver. Notifikasi akan langsung dikirim ke layar Packer:");
       if (resiDitunggu === null || resiDitunggu.trim() === "") { return; }
 
       var btn = document.getElementById('pingBtn');
       var txt = document.getElementById('pingText');
-      btn.disabled = true; 
-      txt.innerText = 'Mengirim Notifikasi... ⚡';
+      btn.disabled = true; txt.innerText = 'Mengirim Notifikasi...';
       
       fetch(scriptURL, {
         method: 'POST',
-        mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: 'ping', orderNumber: resiDitunggu.trim() })
       })
       .then(() => {
-        txt.innerText = '✅ Sinyal Terkirim ke Packer!';
-        setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 4000);
+        txt.innerText = 'Notifikasi Masuk ke Packer!';
+        setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 5000);
       })
       .catch(err => {
-        console.error("Gagal PING:", err);
         txt.innerText = 'Gagal Mengirim!';
         setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 3000);
       });

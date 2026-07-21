@@ -154,7 +154,7 @@
 
   <script>
     feather.replace();
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxruoG0YNQwoeaQ0qfEoc_ftwCz8CIUtzQSxLP9r-s2v9df9nFd2HglpEUJ8-h4PbUcgw/exec'; 
+    const scriptURL = 'https://script.google.com/a/macros/aerisbeaute.com/s/AKfycbxruoG0YNQwoeaQ0qfEoc_ftwCz8CIUtzQSxLP9r-s2v9df9nFd2HglpEUJ8-h4PbUcgw/exec'; 
     let fallbackImageObj = null; 
     let html5QrCode;
     
@@ -405,26 +405,27 @@
     }
 
     function pingPackerSistem() {
-      var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver. Notifikasi akan langsung dikirim ke layar Packer:");
-      if (resiDitunggu === null || resiDitunggu.trim() === "") { return; }
+  var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver. Notifikasi akan langsung dikirim ke layar Packer:");
+  if (resiDitunggu === null || resiDitunggu.trim() === "") { return; }
 
-      var btn = document.getElementById('pingBtn');
-      var txt = document.getElementById('pingText');
-      btn.disabled = true; txt.innerText = 'Mengirim Notifikasi...';
-      
-      // Kirim via GET dengan URL parameter kilat
-      var pingURL = scriptURL + '?action=ping&resi=' + encodeURIComponent(resiDitunggu.trim());
+  var btn = document.getElementById('pingBtn');
+  var txt = document.getElementById('pingText');
+  btn.disabled = true; 
+  txt.innerText = 'Mengirim Notifikasi...';
+  
+  // Tembak URL dengan parameter GET kilat
+  var targetURL = scriptURL + '?action=ping&resi=' + encodeURIComponent(resiDitunggu.trim());
 
-      fetch(pingURL, { method: 'GET', mode: 'no-cors' })
-      .then(() => {
-        txt.innerText = '⚡ Notifikasi Masuk ke Packer!';
-        setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 4000);
-      })
-      .catch(err => {
-        txt.innerText = 'Gagal Mengirim!';
-        setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 3000);
-      });
-    }
+  fetch(targetURL, { mode: 'no-cors' })
+    .then(() => {
+      txt.innerText = '⚡ Notifikasi Masuk ke Packer!';
+      setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 3000);
+    })
+    .catch(err => {
+      txt.innerText = 'Gagal Mengirim!';
+      setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 3000);
+    });
+}
   </script>
 </body>
 </html>

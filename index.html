@@ -156,7 +156,7 @@
     feather.replace();
     
     // =========================================================================
-    // BARIS 183: PASTIIN URL DI BAWAH INI ADALAH URL DEPLOY BARU INSTANT PICKUP!
+    // BARIS 183: PASTE URL DEPLOY BARU INSTANT PICKUP DI SINI!
     // =========================================================================
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwBUqiOOTC_L_j8EmnkT1CHdRVpRlkggTNYC8R5DYAOOUgX1OfCKkCudEcfGj-IQQ3u/exec'; 
     
@@ -306,7 +306,7 @@
     }
 
     // ========================================================
-    // WATERMARK SYSTEM (UKURAN DIPERBESAR & LEBIH TEGAS)
+    // WATERMARK SYSTEM
     // ========================================================
     function applyWatermark(canvas, ctx, resiStr, courier, pic) {
       var ALAMAT_PICKUP = "Gudang AERIS BEAUTE";
@@ -407,7 +407,7 @@
     }
 
     // ==========================================
-    // FUNGSI PING TIM PACKER (Sinyal ke Scan Packer)
+    // FUNGSI PING TIM PACKER (MODE STABIL NO-CORS)
     // ==========================================
     function pingPackerSistem() {
       var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver. Notifikasi akan langsung dikirim ke layar Packer:");
@@ -415,18 +415,21 @@
 
       var btn = document.getElementById('pingBtn');
       var txt = document.getElementById('pingText');
-      btn.disabled = true; txt.innerText = 'Mengirim Notifikasi...';
+      btn.disabled = true; 
+      txt.innerText = 'Mengirim Notifikasi... ⚡';
       
       fetch(scriptURL, {
         method: 'POST',
+        mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: 'ping', orderNumber: resiDitunggu.trim() })
       })
       .then(() => {
-        txt.innerText = 'Notifikasi Masuk ke Packer!';
-        setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 5000);
+        txt.innerText = '✅ Sinyal Terkirim ke Packer!';
+        setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 4000);
       })
       .catch(err => {
+        console.error("Gagal PING:", err);
         txt.innerText = 'Gagal Mengirim!';
         setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 3000);
       });

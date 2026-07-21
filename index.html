@@ -154,7 +154,12 @@
 
   <script>
     feather.replace();
+    
+    // =========================================================================
+    // BARIS 183: PASTIIN URL DI BAWAH INI ADALAH URL DEPLOY BARU INSTANT PICKUP!
+    // =========================================================================
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwBUqiOOTC_L_j8EmnkT1CHdRVpRlkggTNYC8R5DYAOOUgX1OfCKkCudEcfGj-IQQ3u/exec'; 
+    
     let fallbackImageObj = null; 
     let html5QrCode;
     
@@ -305,9 +310,8 @@
     // ========================================================
     function applyWatermark(canvas, ctx, resiStr, courier, pic) {
       var ALAMAT_PICKUP = "Gudang AERIS BEAUTE";
-      var rectHeight = 150; // Kotak hitam diperbesar
+      var rectHeight = 150; 
       
-      // Background hitam semi transparan di bagian bawah foto
       ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
       ctx.fillRect(0, canvas.height - rectHeight, canvas.width, rectHeight);
       
@@ -315,14 +319,12 @@
       var waktu = now.toLocaleDateString('id-ID') + ' ' + now.toLocaleTimeString('id-ID');
       if(resiStr.length > 55) { resiStr = resiStr.substring(0, 52) + "..."; }
 
-      // Teks Putih Standar
       ctx.fillStyle = "#FFFFFF";
       ctx.font = "bold 18px Arial"; 
       ctx.fillText("WAKTU  : " + waktu, 15, canvas.height - 110);
       ctx.fillText("LOKASI : " + ALAMAT_PICKUP, 15, canvas.height - 80);
       ctx.fillText("RESI      : " + resiStr, 15, canvas.height - 50);
       
-      // Teks Kuning Stabilo untuk PIC & Kurir
       ctx.fillStyle = "#FDE047"; 
       ctx.font = "bold 18px Arial";
       ctx.fillText("PIC: " + pic + "  |  KURIR: " + courier, 15, canvas.height - 20);
@@ -347,7 +349,7 @@
       var base64Data = null;
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
-      var MAX_WIDTH = 800; // Resolusi foto diperbesar sedikit agar font lebih tajam
+      var MAX_WIDTH = 800; 
 
       if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
         var scaleSize = MAX_WIDTH / video.videoWidth;
@@ -404,6 +406,9 @@
       }).catch(error => { console.error('Gagal kirim background:', error); });
     }
 
+    // ==========================================
+    // FUNGSI PING TIM PACKER (Sinyal ke Scan Packer)
+    // ==========================================
     function pingPackerSistem() {
       var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver. Notifikasi akan langsung dikirim ke layar Packer:");
       if (resiDitunggu === null || resiDitunggu.trim() === "") { return; }

@@ -156,10 +156,10 @@
     feather.replace();
     
     // URL Backend Instant Pickup (Untuk Submit Database & Foto)
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxruoG0YNQwoeaQ0qfEoc_ftwCz8CIUtzQSxLP9r-s2v9df9nFd2HglpEUJ8-h4PbUcgw/exec'; 
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxu256ZC1tMi1QQg02XBAbo0jFGSMVIO-X5bGug5BIFrLadai71_GK-lgDvcJSA0Jpo/exec'; 
     
     // URL Backend Scan Packer (Khusus Tembak Alarm Ping)
-    const scriptPackerURL = 'https://script.google.com/a/macros/aerisbeaute.com/s/AKfycbxruoG0YNQwoeaQ0qfEoc_ftwCz8CIUtzQSxLP9r-s2v9df9nFd2HglpEUJ8-h4PbUcgw/exec';
+    const scriptPackerURL = 'https://script.google.com/macros/s/AKfycbxruoG0YNQwoeaQ0qfEoc_ftwCz8CIUtzQSxLP9r-s2v9df9nFd2HglpEUJ8-h4PbUcgw/exec';
 
     let fallbackImageObj = null; 
     let html5QrCode;
@@ -319,7 +319,7 @@
       ctx.fillText("PIC: " + pic + "  |  KURIR: " + courier, 15, canvas.height - 20);
     }
 
-    // SUBMIT REPORT (FOTO, DATABASE, EMAIL KHUSUS)
+    // SUBMIT REPORT MENGGUNAKAN FORM-DATA (Bebas Error CORS / Payload)
     function prosesJepretDanKirim() {
       var activePIC = localStorage.getItem('aeris_pic_name');
       if(!activePIC) {
@@ -338,7 +338,7 @@
       var base64Data = "";
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
-      var MAX_WIDTH = 500; // Kompresi 500px super ringan biar kirim hitungan < 2 detik
+      var MAX_WIDTH = 500; 
 
       if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
         var scaleSize = MAX_WIDTH / video.videoWidth;
@@ -367,19 +367,18 @@
       document.getElementById('btnText').innerText = 'Mengirim Kilat... ⚡'; 
       showStatus('loading', 'Mengirim Laporan...');
 
-      var dataKirim = {
-        action: 'submit',
-        orderNumber: resiString,
-        courierName: courier,
-        picName: activePIC, 
-        packagePhotoBase64: base64Data
-      };
+      // Menggunakan URLSearchParams agar terbaca sebagai e.parameter secara Native oleh Google
+      var formData = new URLSearchParams();
+      formData.append('orderNumber', resiString);
+      formData.append('courierName', courier);
+      formData.append('picName', activePIC);
+      formData.append('packagePhotoBase64', base64Data);
 
       fetch(scriptURL, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(dataKirim)
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString()
       })
       .then(() => {
         showStatus('success', '✅ Laporan & Foto Berhasil Terkirim!'); 
@@ -398,7 +397,7 @@
       });
     }
 
-    // PING ALARM SCAN PACKER (PENAMBAHAN BEACON IMAGE PERTAMA BISMILLAH PASTI KETEMBAK)
+    // PING PACKER DENGAN BEACON IMAGE (Mandiri, tidak menyentuh Backend Instant sama sekali)
     function pingPackerSistem() {
       var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver:");
       if (resiDitunggu === null || resiDitunggu.trim() === "") { return; }
@@ -408,7 +407,6 @@
       btn.disabled = true; 
       txt.innerText = 'Mengirim Notifikasi...';
       
-      // Tembak URL Scan Packer langsung via Pixel/Image agar Bypassing Browser Restrictions
       var urlTarget = scriptPackerURL + '?action=ping&resi=' + encodeURIComponent(resiDitunggu.trim()) + '&rand=' + Math.random();
       
       var imgBeacon = new Image();

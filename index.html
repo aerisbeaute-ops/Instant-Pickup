@@ -60,7 +60,9 @@
 </head>
 <body>
 
-  <div id="scanToast" class="scan-toast"><i data-feather="check-circle"></i> Berhasil!</div>
+  <div id="scanToast" class="scan-toast">
+    <i data-feather="check-circle"></i> Berhasil!
+  </div>
 
   <div class="dashboard-wrapper">
     <div class="card card-header">
@@ -69,12 +71,14 @@
       <div id="clockDisplay"><i data-feather="clock" stroke-width="2.5"></i><span id="timeText">Memuat waktu...</span></div>
     </div>
 
-    <button type="button" class="ping-top-btn" id="pingBtn" onclick="pingPackerSistem()">
+    <button type="button" class="ping-top-btn" id="pingBtn" onclick="pingPackerSistem()" title="Ping Tim Packer">
       <i data-feather="bell" id="pingIcon"></i> <span id="pingText">Ping Tim Packer</span>
     </button>
 
     <div class="card">
       <div id="pickupForm">
+        
+        <!-- LOGIN PIC -->
         <div class="form-group" id="loginPicGroup">
           <label for="picNameSelect"><i data-feather="user"></i> Login Identitas PIC</label>
           <select id="picNameSelect" required onchange="togglePicInput()">
@@ -91,6 +95,7 @@
           </button>
         </div>
 
+        <!-- INFO PIC AKTIF -->
         <div class="form-group" id="activePicGroup" style="display:none; background-color: #ECFDF5; padding: 12px 16px; border-radius: 12px; border: 2px solid #A7F3D0;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div style="font-size: 14px; font-weight: 800; color: #065F46; display: flex; align-items: center; gap: 8px;">
@@ -102,8 +107,12 @@
 
         <div class="form-group">
           <label><i data-feather="camera"></i> Kamera Scanner & Jepret</label>
-          <button type="button" id="startCameraBtn" onclick="startCamera()" class="camera-btn"><i data-feather="maximize"></i> Buka Kamera</button>
-          <button type="button" id="stopCameraBtn" onclick="stopCamera()" class="camera-btn" style="display:none; background-color: #EF4444;"><i data-feather="x-circle"></i> Tutup Kamera</button>
+          <button type="button" id="startCameraBtn" onclick="startCamera()" class="camera-btn">
+            <i data-feather="maximize"></i> Buka Kamera
+          </button>
+          <button type="button" id="stopCameraBtn" onclick="stopCamera()" class="camera-btn" style="display:none; background-color: #EF4444;">
+            <i data-feather="x-circle"></i> Tutup Kamera
+          </button>
           
           <div id="reader"></div>
           
@@ -112,7 +121,9 @@
             Klik tombol hijau di bawah untuk <b>Memfoto Resi</b>.<br>
             <div style="position: relative; overflow: hidden; border-radius: 12px; margin-top: 8px;">
               <input type="file" accept="image/*" onchange="scanResiDariFoto(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 999; cursor: pointer;">
-              <button type="button" class="camera-btn" style="background-color: #10B981; pointer-events: none;"><i data-feather="camera"></i> Jepret Foto Manual</button>
+              <button type="button" class="camera-btn" style="background-color: #10B981; pointer-events: none;">
+                <i data-feather="camera"></i> Jepret Foto Manual
+              </button>
             </div>
           </div>
           <span class="help-text">💡 <b>Watermark HD:</b> Foto akan dicap otomatis dengan Lokasi, Jam, Resi, dan Nama!</span>
@@ -154,6 +165,9 @@
     }
     setInterval(updateClock, 1000); updateClock(); 
 
+    // ==========================================
+    // LOGIKA LOGIN PIC
+    // ==========================================
     window.onload = function() { cekLoginPIC(); };
     function cekLoginPIC() {
       var savedName = localStorage.getItem('aeris_pic_name');
@@ -170,7 +184,7 @@
       var select = document.getElementById('picNameSelect').value;
       var other = document.getElementById('picNameOther').value;
       var finalName = select === 'Lainnya' ? other : select;
-      if(!finalName.trim()) { alert('Pilih/ketik nama kamu dulu ya.'); return; }
+      if(!finalName.trim()) { alert('Ups! Pilih atau ketik nama kamu dulu ya.'); return; }
       localStorage.setItem('aeris_pic_name', finalName.trim());
       cekLoginPIC();
     }
@@ -178,29 +192,47 @@
     function togglePicInput() {
       var select = document.getElementById('picNameSelect');
       var inputOther = document.getElementById('picNameOther');
-      inputOther.style.display = select.value === "Lainnya" ? "block" : "none";
-    }
-
-    function triggerSuksesScan(decodedText) {
-      var orderTextArea = document.getElementById('orderNumber');
-      if (!orderTextArea.value.includes(decodedText)) {
-        if (decodedText.startsWith('260')) document.getElementById('courierName').value = 'Shopee Express';
-        else if (decodedText.startsWith('568')) document.getElementById('courierName').value = 'Gojek';
-
-        orderTextArea.value = orderTextArea.value === "" ? decodedText : orderTextArea.value + "\n" + decodedText;
-        var toast = document.getElementById('scanToast');
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 1500); 
+      if (select.value === "Lainnya") {
+        inputOther.style.display = "block"; inputOther.required = true;
+      } else {
+        inputOther.style.display = "none"; inputOther.required = false;
       }
     }
 
+    // ==========================================
+    // LOGIKA AUTO-DETECT KURIR
+    // ==========================================
+    function triggerSuksesScan(decodedText) {
+      var orderTextArea = document.getElementById('orderNumber');
+      if (!orderTextArea.value.includes(decodedText)) {
+        if (decodedText.startsWith('260')) { document.getElementById('courierName').value = 'Shopee Express'; } 
+        else if (decodedText.startsWith('568')) { document.getElementById('courierName').value = 'Gojek'; }
+
+        orderTextArea.value = orderTextArea.value === "" ? decodedText : orderTextArea.value + "\n" + decodedText;
+        
+        var toast = document.getElementById('scanToast');
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); }, 1500); 
+
+        if ('speechSynthesis' in window) {
+          var utterance = new SpeechSynthesisUtterance("Oke");
+          utterance.lang = 'id-ID'; utterance.rate = 1.5;
+          window.speechSynthesis.speak(utterance);
+        }
+      }
+    }
+
+    // ==========================================
+    // KAMERA SYSTEM
+    // ==========================================
     function startCamera() {
       document.getElementById('cameraError').style.display = 'none';
       document.getElementById('startCameraBtn').style.display = 'none';
+      
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ video: true })
-          .then(stream => { stream.getTracks().forEach(track => track.stop()); jalankanScanner(); })
-          .catch(() => {
+          .then(function(stream) { stream.getTracks().forEach(track => track.stop()); jalankanScanner(); })
+          .catch(function(err) {
              document.getElementById('cameraError').style.display = 'block';
              document.getElementById('startCameraBtn').style.display = 'flex';
           });
@@ -210,10 +242,14 @@
     function jalankanScanner() {
       document.getElementById('stopCameraBtn').style.display = 'flex';
       document.getElementById('reader').style.display = 'block';
+
       html5QrCode = new Html5Qrcode("reader");
       html5QrCode.start({ facingMode: "environment" }, { fps: 30 },
-        decodedText => triggerSuksesScan(decodedText), () => {}
-      ).catch(() => { document.getElementById('cameraError').style.display = 'block'; stopCamera(); });
+        function(decodedText) { triggerSuksesScan(decodedText); },
+        function(errorMessage) {}
+      ).catch(function(err) {
+        document.getElementById('cameraError').style.display = 'block'; stopCamera();
+      });
     }
 
     function stopCamera() {
@@ -230,25 +266,26 @@
       if (event.target.files.length == 0) return;
       var file = event.target.files[0];
       showStatus('loading', 'Membaca barcode...');
+      
       var reader = new FileReader();
       reader.onload = function(e) {
-        var img = new Image();
-        img.onload = function() { fallbackImageObj = img; }; 
-        img.src = e.target.result;
+          var img = new Image();
+          img.onload = function() { fallbackImageObj = img; }; 
+          img.src = e.target.result;
       };
       reader.readAsDataURL(file);
       
-      if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+      if (!html5QrCode) { html5QrCode = new Html5Qrcode("reader"); }
       html5QrCode.scanFile(file, true)
         .then(decodedText => {
            triggerSuksesScan(decodedText);
            showStatus('success', '✅ Barcode terbaca!');
-           setTimeout(() => document.getElementById('statusMessage').style.display = 'none', 3000);
+           setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 3000);
            event.target.value = ''; 
         })
-        .catch(() => {
-           showStatus('error', '❌ Barcode tidak terbaca! Foto tersimpan.');
-           setTimeout(() => document.getElementById('statusMessage').style.display = 'none', 5000);
+        .catch(err => {
+           showStatus('error', '❌ Barcode tidak terbaca! Tapi foto telah tersimpan sebagai bukti.');
+           setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 5000);
            event.target.value = ''; 
         });
     }
@@ -263,18 +300,24 @@
       feather.replace(); 
     }
 
+    // ========================================================
+    // WATERMARK SYSTEM
+    // ========================================================
     function applyWatermark(canvas, ctx, resiStr, courier, pic) {
+      var ALAMAT_PICKUP = "Gudang AERIS BEAUTE";
       var rectHeight = 150; 
+      
       ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
       ctx.fillRect(0, canvas.height - rectHeight, canvas.width, rectHeight);
+      
       var now = new Date();
       var waktu = now.toLocaleDateString('id-ID') + ' ' + now.toLocaleTimeString('id-ID');
-      if(resiStr.length > 55) resiStr = resiStr.substring(0, 52) + "...";
+      if(resiStr.length > 55) { resiStr = resiStr.substring(0, 52) + "..."; }
 
       ctx.fillStyle = "#FFFFFF";
       ctx.font = "bold 18px Arial"; 
       ctx.fillText("WAKTU   : " + waktu, 15, canvas.height - 110);
-      ctx.fillText("LOKASI : Gudang AERIS BEAUTE", 15, canvas.height - 80);
+      ctx.fillText("LOKASI : " + ALAMAT_PICKUP, 15, canvas.height - 80);
       ctx.fillText("RESI      : " + resiStr, 15, canvas.height - 50);
       
       ctx.fillStyle = "#FDE047"; 
@@ -282,11 +325,14 @@
       ctx.fillText("PIC: " + pic + "  |  KURIR: " + courier, 15, canvas.height - 20);
     }
 
-    // FIX UTAMA: KIRIM MULTIPART FORM DATA YANG PASTI DITERIMA BANYAK TIPE SERVER
+    // ========================================================
+    // SUBMIT KILAT (RINGAN & SUPER CEPAT DITERIMA APPS SCRIPT)
+    // ========================================================
     function prosesJepretDanKirim() {
       var activePIC = localStorage.getItem('aeris_pic_name');
       if(!activePIC) {
-        showStatus('error', '🚨 Harap Login Nama PIC di atas dulu!');
+        showStatus('error', '🚨 Harap Login Nama PIC kamu di bagian atas terlebih dahulu!');
+        document.getElementById('loginPicGroup').scrollIntoView({ behavior: 'smooth' });
         return;
       }
 
@@ -294,85 +340,100 @@
       var courier = document.getElementById('courierName').value;
       var resiString = orderInput.value.replace(/\n/g, ', ');
 
-      if(!orderInput.value.trim()) { showStatus('error', 'Resi kosong!'); return; }
-      if(!courier) { showStatus('error', 'Pilih Kurir dulu!'); return; }
+      if(!orderInput.value.trim()) { showStatus('error', 'Resi kosong! Harap scan resi terlebih dahulu.'); return; }
+      if(!courier) { showStatus('error', 'Pilih Nama Kurir terlebih dahulu!'); return; }
 
       var video = document.querySelector('#reader video');
       var base64Data = "";
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
-      var MAX_WIDTH = 800; 
+      var MAX_WIDTH = 600; // Dikompresi agar tidak timeout saat kirim
 
       if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
         var scaleSize = MAX_WIDTH / video.videoWidth;
         canvas.width = MAX_WIDTH; 
         canvas.height = video.videoHeight * scaleSize;
+        
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         applyWatermark(canvas, ctx, resiString, courier, activePIC);
-        base64Data = canvas.toDataURL('image/jpeg', 0.7);
+        
+        base64Data = canvas.toDataURL('image/jpeg', 0.4);
         stopCamera(); 
-      } else if (fallbackImageObj) { 
+      } 
+      else if (fallbackImageObj) { 
         var scaleSize = MAX_WIDTH / fallbackImageObj.width;
         canvas.width = MAX_WIDTH; 
         canvas.height = fallbackImageObj.height * scaleSize;
+        
         ctx.drawImage(fallbackImageObj, 0, 0, canvas.width, canvas.height);
         applyWatermark(canvas, ctx, resiString, courier, activePIC);
-        base64Data = canvas.toDataURL('image/jpeg', 0.7);
-      } else {
-        showStatus('error', 'Harap Buka Kamera dan foto kurir dulu!');
+        
+        base64Data = canvas.toDataURL('image/jpeg', 0.4);
+      } 
+      else {
+        showStatus('error', 'Kamera Mati! Harap Buka Kamera dan arahkan ke wajah kurir sebelum menekan Kirim.');
         return;
       }
 
       var btn = document.getElementById('submitBtn');
       btn.disabled = true; 
-      document.getElementById('btnText').innerText = 'Mengirim... ⚡'; 
-      showStatus('loading', 'Mengirim data...');
+      document.getElementById('btnText').innerText = 'Mengirim Kilat... ⚡'; 
+      showStatus('loading', 'Mencetak Watermark & Mengirim...');
 
-      // Kirim via URLSearchParams (Paling stabil untuk GAS)
-      var p = new URLSearchParams();
-      p.append('orderNumber', resiString);
-      p.append('courierName', courier);
-      p.append('picName', activePIC);
-      p.append('packagePhotoBase64', base64Data);
+      var dataKirim = {
+        action: 'submit',
+        orderNumber: resiString,
+        courierName: courier,
+        picName: activePIC, 
+        packagePhotoBase64: base64Data
+      };
 
+      // Pengiriman Fetch POST yang Cepat & Ringan
       fetch(scriptURL, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: p.toString()
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(dataKirim)
       })
       .then(() => {
-        showStatus('success', '✅ Laporan Berhasil Terkirim!'); 
+        showStatus('success', '✅ Laporan & Foto Berhasil Terkirim!'); 
         document.getElementById('orderNumber').value = '';
         document.getElementById('courierName').value = '';
         fallbackImageObj = null; 
-        setTimeout(() => document.getElementById('statusMessage').style.display = 'none', 3000);
+        
+        setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 3000);
         btn.disabled = false; 
         document.getElementById('btnText').innerText = '📸 Jepret Live & Kirim Report';
       })
-      .catch(err => {
-        showStatus('error', '❌ Gagal Mengirim!');
+      .catch(error => { 
+        console.error('Gagal kirim:', error);
+        showStatus('error', '❌ Gagal Mengirim Data!');
         btn.disabled = false;
         document.getElementById('btnText').innerText = '📸 Jepret Live & Kirim Report';
       });
     }
 
+    // ========================================================
+    // PING PACKER (MEMICU ALARM MERAH DI SCAN PACKER)
+    // ========================================================
     function pingPackerSistem() {
-      var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik resi yang ditunggu driver:");
-      if (!resiDitunggu || !resiDitunggu.trim()) return;
+      var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver. Notifikasi akan langsung dikirim ke layar Packer:");
+      if (resiDitunggu === null || resiDitunggu.trim() === "") { return; }
 
       var btn = document.getElementById('pingBtn');
       var txt = document.getElementById('pingText');
       btn.disabled = true; 
-      txt.innerText = 'Mengirim...';
+      txt.innerText = 'Mengirim Notifikasi...';
       
-      fetch(scriptURL + '?action=ping&resi=' + encodeURIComponent(resiDitunggu.trim()), { mode: 'no-cors' })
+      var targetURL = scriptURL + '?action=ping&resi=' + encodeURIComponent(resiDitunggu.trim());
+
+      fetch(targetURL, { mode: 'no-cors' })
         .then(() => {
-          txt.innerText = '⚡ Notifikasi Masuk!';
+          txt.innerText = '⚡ Notifikasi Masuk ke Packer!';
           setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 3000);
         })
-        .catch(() => {
-          txt.innerText = 'Gagal!';
+        .catch(err => {
+          txt.innerText = 'Gagal Mengirim!';
           setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 3000);
         });
     }

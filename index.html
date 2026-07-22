@@ -154,6 +154,7 @@
 
   <script>
     feather.replace();
+    // Gunakan scriptURL Apps Script Kakak
     const scriptURL = 'https://script.google.com/macros/s/AKfycbxu256ZC1tMi1QQg02XBAbo0jFGSMVIO-X5bGug5BIFrLadai71_GK-lgDvcJSA0Jpo/exec'; 
     let fallbackImageObj = null; 
     let html5QrCode;
@@ -301,13 +302,12 @@
     }
 
     // ========================================================
-    // WATERMARK SYSTEM (UKURAN DIPERBESAR & LEBIH TEGAS)
+    // WATERMARK SYSTEM
     // ========================================================
     function applyWatermark(canvas, ctx, resiStr, courier, pic) {
       var ALAMAT_PICKUP = "Gudang AERIS BEAUTE";
-      var rectHeight = 150; // Kotak hitam diperbesar
+      var rectHeight = 150; 
       
-      // Background hitam semi transparan di bagian bawah foto
       ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
       ctx.fillRect(0, canvas.height - rectHeight, canvas.width, rectHeight);
       
@@ -315,19 +315,20 @@
       var waktu = now.toLocaleDateString('id-ID') + ' ' + now.toLocaleTimeString('id-ID');
       if(resiStr.length > 55) { resiStr = resiStr.substring(0, 52) + "..."; }
 
-      // Teks Putih Standar
       ctx.fillStyle = "#FFFFFF";
       ctx.font = "bold 18px Arial"; 
-      ctx.fillText("WAKTU  : " + waktu, 15, canvas.height - 110);
+      ctx.fillText("WAKTU   : " + waktu, 15, canvas.height - 110);
       ctx.fillText("LOKASI : " + ALAMAT_PICKUP, 15, canvas.height - 80);
       ctx.fillText("RESI      : " + resiStr, 15, canvas.height - 50);
       
-      // Teks Kuning Stabilo untuk PIC & Kurir
       ctx.fillStyle = "#FDE047"; 
       ctx.font = "bold 18px Arial";
       ctx.fillText("PIC: " + pic + "  |  KURIR: " + courier, 15, canvas.height - 20);
     }
 
+    // ========================================================
+    // FUNGSI SUBMIT FORM FIX (LANGSUNG DITERIMA APPS SCRIPT)
+    // ========================================================
     function prosesJepretDanKirim() {
       var activePIC = localStorage.getItem('aeris_pic_name');
       if(!activePIC) {
@@ -347,7 +348,7 @@
       var base64Data = null;
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
-      var MAX_WIDTH = 800; // Resolusi foto diperbesar sedikit agar font lebih tajam
+      var MAX_WIDTH = 800; 
 
       if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
         var scaleSize = MAX_WIDTH / video.videoWidth;
@@ -380,52 +381,61 @@
       document.getElementById('btnText').innerText = 'Mengirim Kilat... ⚡'; 
       showStatus('loading', 'Mencetak Watermark & Mengirim...');
 
+      // Paylod Disesuaikan Sama Persis Dengan Code.gs
       var dataKirim = {
+        action: "submit",
         orderNumber: resiString,
         courierName: courier,
         picName: activePIC, 
-        packagePhotoBase64: base64Data,
-        packagePhotoType: 'image/jpeg'
+        packagePhotoBase64: base64Data
       };
 
-      showStatus('success', '✅ Jepretan Berhasil! Laporan masuk antrean.'); 
-      document.getElementById('orderNumber').value = '';
-      document.getElementById('courierName').value = '';
-      fallbackImageObj = null; 
-      
-      setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 3000);
-      btn.disabled = false; 
-      document.getElementById('btnText').innerText = '📸 Jepret Live & Kirim Report';
-
+      // Pengiriman Fetch POST yang Aman dari CORS
       fetch(scriptURL, {
         method: 'POST',
+        mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'submitForm', payload: dataKirim })
-      }).catch(error => { console.error('Gagal kirim background:', error); });
+        body: JSON.stringify(dataKirim)
+      })
+      .then(() => {
+        showStatus('success', '✅ Laporan & Foto Berhasil Terkirim!'); 
+        document.getElementById('orderNumber').value = '';
+        document.getElementById('courierName').value = '';
+        fallbackImageObj = null; 
+        
+        setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 3000);
+        btn.disabled = false; 
+        document.getElementById('btnText').innerText = '📸 Jepret Live & Kirim Report';
+      })
+      .catch(error => { 
+        console.error('Gagal kirim:', error);
+        showStatus('error', '❌ Gagal Mengirim Data!');
+        btn.disabled = false;
+        document.getElementById('btnText').innerText = '📸 Jepret Live & Kirim Report';
+      });
     }
 
     function pingPackerSistem() {
-  var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver. Notifikasi akan langsung dikirim ke layar Packer:");
-  if (resiDitunggu === null || resiDitunggu.trim() === "") { return; }
+      var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver. Notifikasi akan langsung dikirim ke layar Packer:");
+      if (resiDitunggu === null || resiDitunggu.trim() === "") { return; }
 
-  var btn = document.getElementById('pingBtn');
-  var txt = document.getElementById('pingText');
-  btn.disabled = true; 
-  txt.innerText = 'Mengirim Notifikasi...';
-  
-  // Tembak URL dengan parameter GET kilat
-  var targetURL = scriptURL + '?action=ping&resi=' + encodeURIComponent(resiDitunggu.trim());
+      var btn = document.getElementById('pingBtn');
+      var txt = document.getElementById('pingText');
+      btn.disabled = true; 
+      txt.innerText = 'Mengirim Notifikasi...';
+      
+      var targetURL = scriptURL + '?action=ping&resi=' + encodeURIComponent(resiDitunggu.trim());
 
-  fetch(targetURL, { mode: 'no-cors' })
-    .then(() => {
-      txt.innerText = '⚡ Notifikasi Masuk ke Packer!';
-      setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 3000);
-    })
-    .catch(err => {
-      txt.innerText = 'Gagal Mengirim!';
-      setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 3000);
-    });
-}
+      fetch(targetURL, { mode: 'no-cors' })
+        .then(() => {
+          txt.innerText = '⚡ Notifikasi Masuk ke Packer!';
+          setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 3000);
+        })
+        .catch(err => {
+          txt.innerText = 'Gagal Mengirim!';
+          setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 3000);
+        });
+    }
   </script>
 </body>
 </html>

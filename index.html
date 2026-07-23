@@ -56,12 +56,31 @@
     .scan-toast { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); background-color: #10B981; color: white; padding: 10px 20px; border-radius: 50px; font-weight: 800; font-size: 14px; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4); z-index: 9999; display: flex; align-items: center; gap: 8px; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
     .scan-toast.show { opacity: 1; visibility: visible; top: 40px; }
     .scan-toast svg { width: 18px; height: 18px; }
+
+    /* POPUP NOTIFIKASI BALASAN PACKER */
+    .packer-reply-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 10000; padding: 20px; box-sizing: border-box; }
+    .packer-reply-box { background: white; width: 100%; max-width: 380px; border-radius: 20px; padding: 24px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 3px solid #10B981; animation: popIn 0.3s ease; }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .packer-reply-box i { width: 48px; height: 48px; color: #10B981; margin-bottom: 12px; }
+    .packer-reply-box h3 { margin: 0 0 8px 0; font-size: 18px; font-weight: 800; color: #065F46; }
+    .packer-reply-box p { margin: 0 0 16px 0; font-size: 13px; color: #334155; font-weight: 600; line-height: 1.4; }
+    .packer-reply-box button { width: 100%; padding: 12px; background: #10B981; color: white; border: none; border-radius: 50px; font-weight: 800; font-size: 14px; cursor: pointer; }
   </style>
 </head>
 <body>
 
   <div id="scanToast" class="scan-toast">
     <i data-feather="check-circle"></i> Berhasil!
+  </div>
+
+  <!-- MODAL NOTIFIKASI BALASAN TIM PACKER -->
+  <div id="packerReplyModal" class="packer-reply-modal">
+    <div class="packer-reply-box">
+      <i data-feather="check-circle"></i>
+      <h3>TIM PACKER MERESPON!</h3>
+      <p id="packerReplyText">Paket sedang disiapkan oleh tim Packer.</p>
+      <button type="button" onclick="tutupNotifPacker()">SIAP, TERIMA KASIH!</button>
+    </div>
   </div>
 
   <div class="dashboard-wrapper">
@@ -155,11 +174,11 @@
   <script>
     feather.replace();
     
-    // 1. URL Backend Instant Pickup (Untuk Submit Database & Foto)
+    // 1. URL Backend Instant Pickup
     const scriptURL = 'https://script.google.com/macros/s/AKfycbxu256ZC1tMi1QQg02XBAbo0jFGSMVIO-X5bGug5BIFrLadai71_GK-lgDvcJSA0Jpo/exec'; 
     
-    // 2. URL Backend Scan Packer (Khusus Tembak Alarm Ping)
-    const scriptPackerURL = 'https://script.google.com/a/macros/aerisbeaute.com/s/AKfycbxruoG0YNQwoeaQ0qfEoc_ftwCz8CIUtzQSxLP9r-s2v9df9nFd2HglpEUJ8-h4PbUcgw/exec';
+    // 2. URL Backend Scan Packer
+    const scriptPackerURL = 'https://script.google.com/macros/s/AKfycbxruoG0YNQwoeaQ0qfEoc_ftwCz8CIUtzQSxLP9r-s2v9df9nFd2HglpEUJ8-h4PbUcgw/exec';
 
     // 3. Email Notifikasi
     const targetEmail = 'syifatiara@aerisbeaute.com';
@@ -174,7 +193,12 @@
     }
     setInterval(updateClock, 1000); updateClock(); 
 
-    window.onload = function() { cekLoginPIC(); };
+    window.onload = function() { 
+      cekLoginPIC(); 
+      // Jalankan Polling Cek Respon Packer Setiap 2 Detik
+      setInterval(cekBalasanPacker, 2000);
+    };
+
     function cekLoginPIC() {
       var savedName = localStorage.getItem('aeris_pic_name');
       if (savedName) {
@@ -346,7 +370,6 @@
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
       
-      // ⚡ OPTIMASI KILAT & JELAS: 500px Lebar + 0.3 Kompresi (Ukuran File SANGAT RINGAN < 80 KB)
       var MAX_WIDTH = 500; 
 
       if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
@@ -424,6 +447,31 @@
         txt.innerText = '⚡ Notifikasi Masuk ke Packer!';
         setTimeout(() => { txt.innerText = 'Ping Tim Packer'; btn.disabled = false; }, 3000);
       }, 600);
+    }
+
+    // FUNGSI CEK BALASAN DARI TIM PACKER (POLLING BACKGROUND)
+    function cekBalasanPacker() {
+      fetch(scriptPackerURL + '?action=check_ack&rand=' + Math.random())
+        .then(res => res.text())
+        .then(txt => {
+          if (txt && txt !== "NONE") {
+            document.getElementById('packerReplyText').innerText = "Paket resi [" + txt + "] sedang disiapkan & dicarikan oleh Tim Packer!";
+            document.getElementById('packerReplyModal').style.display = 'flex';
+            feather.replace();
+
+            // Bunyi suara notifikasi balasan
+            if ('speechSynthesis' in window) {
+              var utterance = new SpeechSynthesisUtterance("Paket sedang disiapkan tim packer");
+              utterance.lang = 'id-ID'; utterance.rate = 1.3;
+              window.speechSynthesis.speak(utterance);
+            }
+          }
+        })
+        .catch(err => console.log(err));
+    }
+
+    function tutupNotifPacker() {
+      document.getElementById('packerReplyModal').style.display = 'none';
     }
   </script>
 </body>

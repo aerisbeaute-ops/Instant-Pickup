@@ -153,14 +153,15 @@
           <textarea id="orderNumber" class="giant-input" name="orderNumber" required placeholder="Hasil scan masuk ke sini..."></textarea>
         </div>
 
+        <!-- DROPDOWN KURIR DENGAN ANTERAJA -->
         <div class="form-group">
           <label for="courierName"><i data-feather="truck"></i> Kurir</label>
           <select id="courierName" name="courierName" required>
             <option value="">-- Pilih Ekspedisi --</option>
             <option value="Shopee Express">Shopee Express</option>
-            <option value="Antaraja">Antaraja</option>
             <option value="Gojek">Gojek</option>
             <option value="Grab">Grab</option>
+            <option value="Anteraja">Anteraja</option>
             <option value="Lalamove">Lalamove</option>
             <option value="Lainnya">Lainnya...</option>
           </select>
@@ -178,7 +179,7 @@
     // 1. URL Backend Instant Pickup
     const scriptURL = 'https://script.google.com/macros/s/AKfycbxu256ZC1tMi1QQg02XBAbo0jFGSMVIO-X5bGug5BIFrLadai71_GK-lgDvcJSA0Jpo/exec'; 
     
-    // 2. URL Backend Scan Packer (Pastikan Menggunakan URL Web App Terbaru!)
+    // 2. URL Backend Scan Packer
     const scriptPackerURL = 'https://script.google.com/macros/s/AKfycbxruoG0YNQwoeaQ0qfEoc_ftwCz8CIUtzQSxLP9r-s2v9df9nFd2HglpEUJ8-h4PbUcgw/exec';
 
     // 3. Email Notifikasi
@@ -196,7 +197,6 @@
 
     window.onload = function() { 
       cekLoginPIC(); 
-      // Jalankan Cek Balasan Packer Tiap 2 Detik
       setInterval(cekBalasanPacker, 2000);
     };
 
@@ -230,12 +230,20 @@
       }
     }
 
+    // AUTO SELECT KURIR DENGAN PREFIX 260, 58, DAN TSA
     function triggerSuksesScan(decodedText) {
       var orderTextArea = document.getElementById('orderNumber');
       if (!orderTextArea.value.includes(decodedText)) {
-        if (decodedText.startsWith('260')) { document.getElementById('courierName').value = 'Shopee Express'; } 
-        else if (decodedText.startsWith('58')) { document.getElementById('courierName').value = 'Gojek'; }
-        else if (decodedText.startsWith('TSA')) { document.getElementById('courierName').value = 'Antaraja'; }
+        
+        if (decodedText.startsWith('260')) { 
+          document.getElementById('courierName').value = 'Shopee Express'; 
+        } 
+        else if (decodedText.startsWith('58')) { 
+          document.getElementById('courierName').value = 'Gojek'; 
+        }
+        else if (decodedText.toUpperCase().startsWith('TSA')) { 
+          document.getElementById('courierName').value = 'Anteraja'; 
+        }
 
         orderTextArea.value = orderTextArea.value === "" ? decodedText : orderTextArea.value + "\n" + decodedText;
         
@@ -451,7 +459,6 @@
       }, 600);
     }
 
-    // FUNGSI CEK BALASAN PACKER VIA JSONP (TEMBUS CORS 100%)
     function cekBalasanPacker() {
       var callbackName = 'handlePackerAck_' + Math.floor(Math.random() * 100000);
       

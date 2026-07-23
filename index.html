@@ -161,6 +161,9 @@
     // 2. URL Backend Scan Packer (Khusus Tembak Alarm Ping)
     const scriptPackerURL = 'https://script.google.com/a/macros/aerisbeaute.com/s/AKfycbxruoG0YNQwoeaQ0qfEoc_ftwCz8CIUtzQSxLP9r-s2v9df9nFd2HglpEUJ8-h4PbUcgw/exec';
 
+    // 3. Email Notifikasi Terkunci
+    const targetEmail = 'syifatiara@aerisbeaute.com';
+
     let fallbackImageObj = null; 
     let html5QrCode;
     
@@ -299,8 +302,6 @@
 
     function applyWatermark(canvas, ctx, resiStr, courier, pic) {
       var ALAMAT_PICKUP = "Gudang AERIS BEAUTE";
-      
-      // Mengatur tinggi banner hitam secara dinamis sesuai resolusi canvas
       var rectHeight = Math.round(canvas.height * 0.22); 
       if (rectHeight < 130) rectHeight = 130;
       
@@ -311,7 +312,6 @@
       var waktu = now.toLocaleDateString('id-ID') + ' ' + now.toLocaleTimeString('id-ID');
       if(resiStr.length > 55) { resiStr = resiStr.substring(0, 52) + "..."; }
 
-      // Ukuran font yang otomatis menyesuaikan lebar canvas (Proporsional)
       var fontSize = Math.round(canvas.width * 0.035);
       if (fontSize < 18) fontSize = 18;
 
@@ -346,7 +346,7 @@
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
       
-      // 🎯 OPTIMASI SEIMBANG: Lebar 640px & Kualitas 0.45 (Jelas Dibaca, Ukuran File Tetap Ringan)
+      // OPTIMASI GAMBAR: 640px & Kualitas 0.45 (Jelas dibaca & tidak burem)
       var MAX_WIDTH = 640; 
 
       if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
@@ -376,10 +376,12 @@
       document.getElementById('btnText').innerText = 'Mengirim Kilat... ⚡'; 
       showStatus('loading', 'Mengirim Laporan...');
 
+      // PAYLOAD LENGKAP: Mengirim Data Resi, Kurir, PIC, Foto, dan EMAIL KAK SYIFA
       var formData = new URLSearchParams();
       formData.append('orderNumber', resiString);
       formData.append('courierName', courier);
       formData.append('picName', activePIC);
+      formData.append('emailTarget', targetEmail);
       formData.append('packagePhotoBase64', base64Data);
 
       fetch(scriptURL, {
@@ -389,7 +391,7 @@
         body: formData.toString()
       })
       .then(() => {
-        showStatus('success', '✅ Laporan & Foto Berhasil Terkirim!'); 
+        showStatus('success', '✅ Laporan, Foto & Notif Email Berhasil Terkirim!'); 
         orderInput.value = '';
         courierSelect.value = '';
         fallbackImageObj = null; 

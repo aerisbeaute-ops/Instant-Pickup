@@ -319,7 +319,7 @@
       ctx.fillText("PIC: " + pic + "  |  KURIR: " + courier, 15, canvas.height - 20);
     }
 
-    // SUBMIT KILAT BACKGROUND (ZERO-WAIT FOR PIC)
+    // SUBMIT ASYNC INSTAN (KODE KEMARIN SORE DENGAN ZERO-WAIT UI)
     function prosesJepretDanKirim() {
       var activePIC = localStorage.getItem('aeris_pic_name');
       if (!activePIC) {
@@ -329,8 +329,8 @@
 
       var orderInput = document.getElementById('orderNumber');
       var courierSelect = document.getElementById('courierName');
-      var resiString = orderInput.value.replace(/\n/g, ', ');
       var courier = courierSelect.value;
+      var resiString = orderInput.value.replace(/\n/g, ', ');
 
       if (!orderInput.value.trim()) { showStatus('error', 'Resi kosong!'); return; }
       if (!courier) { showStatus('error', 'Pilih Kurir terlebih dahulu!'); return; }
@@ -348,6 +348,7 @@
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         applyWatermark(canvas, ctx, resiString, courier, activePIC);
         base64Data = canvas.toDataURL('image/jpeg', 0.2);
+        stopCamera(); 
       } 
       else if (fallbackImageObj) { 
         var scaleSize = MAX_WIDTH / fallbackImageObj.width;
@@ -362,35 +363,33 @@
         return;
       }
 
+      // PACKING PAYLOAD SAMA SEPERTI KODE KEMARIN SORE
       var formData = new URLSearchParams();
       formData.append('orderNumber', resiString);
       formData.append('courierName', courier);
       formData.append('picName', activePIC);
       formData.append('packagePhotoBase64', base64Data);
 
-      // KOSONGKAN FORM INSTAN & TAMPILKAN STATUS HIJAU
-      orderInput.value = '';
-      courierSelect.value = '';
-      fallbackImageObj = null; 
-      stopCamera();
-
-      showStatus('success', '⚡ Terkirim ke Antrean!');
-      setTimeout(function(){ 
-        document.getElementById('statusMessage').style.display = 'none'; 
-      }, 1200);
-
-      // FIRING REQUEST DI BACKGROUND
+      // FIRING KE GOOGLE APPS SCRIPT DIBELAKANG LAYAR
       fetch(scriptURL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString()
-      }).catch(function(error) { 
-        console.error('Background send error:', error);
+      }).catch(error => { 
+        console.error('Latar belakang error:', error);
       });
+
+      // ⚡ LANGSUNG RESET FORM SEKETIKA DI HP PIC (0 DETIK LOADING)
+      orderInput.value = '';
+      courierSelect.value = '';
+      fallbackImageObj = null; 
+
+      showStatus('success', '⚡ Laporan Terkirim!');
+      setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 1500);
     }
 
-    // PING PACKER DENGAN BEACON IMAGE
+    // PING PACKER DENGAN BEACON IMAGE (Mandiri, Tembak Langsung ke Backend Scan Packer)
     function pingPackerSistem() {
       var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver:");
       if (resiDitunggu === null || resiDitunggu.trim() === "") { return; }

@@ -368,16 +368,16 @@
       formData.append('picName', activePIC);
       formData.append('packagePhotoBase64', base64Data);
 
-      // RESET UI SPONTAN (0 DETIK WAIT)
+      // KOSONGKAN FORM INSTAN & TAMPILKAN STATUS HIJAU
       orderInput.value = '';
       courierSelect.value = '';
       fallbackImageObj = null; 
       stopCamera();
 
-      showStatus('success', '⚡ Terkirim ke Antrean Backend!');
+      showStatus('success', '⚡ Terkirim ke Antrean!');
       setTimeout(function(){ 
         document.getElementById('statusMessage').style.display = 'none'; 
-      }, 1500);
+      }, 1200);
 
       // FIRING REQUEST DI BACKGROUND
       fetch(scriptURL, {

@@ -156,7 +156,7 @@
     feather.replace();
     
     // 1. URL Backend Instant Pickup (Untuk Submit Database & Foto)
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxu256ZC1tMi1QQg02XBAbo0jFGSMVIO-X5bGug5BIFrLadai71_GK-lgDvcJSA0Jpo/exec'; 
+    const scriptURL = 'https://script.google.com/a/macros/aerisbeaute.com/s/AKfycbxruoG0YNQwoeaQ0qfEoc_ftwCz8CIUtzQSxLP9r-h4PbUcgw/exec'; 
     
     // 2. URL Backend Scan Packer (Khusus Tembak Alarm Ping)
     const scriptPackerURL = 'https://script.google.com/a/macros/aerisbeaute.com/s/AKfycbxruoG0YNQwoeaQ0qfEoc_ftwCz8CIUtzQSxLP9r-s2v9df9nFd2HglpEUJ8-h4PbUcgw/exec';
@@ -299,27 +299,33 @@
 
     function applyWatermark(canvas, ctx, resiStr, courier, pic) {
       var ALAMAT_PICKUP = "Gudang AERIS BEAUTE";
-      var rectHeight = 150; 
       
-      ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+      // Mengatur tinggi banner hitam secara dinamis sesuai resolusi canvas
+      var rectHeight = Math.round(canvas.height * 0.22); 
+      if (rectHeight < 130) rectHeight = 130;
+      
+      ctx.fillStyle = "rgba(0, 0, 0, 0.78)";
       ctx.fillRect(0, canvas.height - rectHeight, canvas.width, rectHeight);
       
       var now = new Date();
       var waktu = now.toLocaleDateString('id-ID') + ' ' + now.toLocaleTimeString('id-ID');
       if(resiStr.length > 55) { resiStr = resiStr.substring(0, 52) + "..."; }
 
+      // Ukuran font yang otomatis menyesuaikan lebar canvas (Proporsional)
+      var fontSize = Math.round(canvas.width * 0.035);
+      if (fontSize < 18) fontSize = 18;
+
       ctx.fillStyle = "#FFFFFF";
-      ctx.font = "bold 18px Arial"; 
-      ctx.fillText("WAKTU   : " + waktu, 15, canvas.height - 110);
-      ctx.fillText("LOKASI : " + ALAMAT_PICKUP, 15, canvas.height - 80);
-      ctx.fillText("RESI      : " + resiStr, 15, canvas.height - 50);
+      ctx.font = "bold " + fontSize + "px Arial"; 
+      ctx.fillText("WAKTU   : " + waktu, 18, canvas.height - (rectHeight * 0.72));
+      ctx.fillText("LOKASI : " + ALAMAT_PICKUP, 18, canvas.height - (rectHeight * 0.52));
+      ctx.fillText("RESI      : " + resiStr, 18, canvas.height - (rectHeight * 0.32));
       
       ctx.fillStyle = "#FDE047"; 
-      ctx.font = "bold 18px Arial";
-      ctx.fillText("PIC: " + pic + "  |  KURIR: " + courier, 15, canvas.height - 20);
+      ctx.font = "bold " + fontSize + "px Arial";
+      ctx.fillText("PIC: " + pic + "  |  KURIR: " + courier, 18, canvas.height - (rectHeight * 0.12));
     }
 
-    // SUBMIT TANPA TULISAN "MENGIRIM LAPORAN", FORM LANGSUNG BERSIH INSTAN
     function prosesJepretDanKirim() {
       var activePIC = localStorage.getItem('aeris_pic_name');
       if (!activePIC) {
@@ -328,8 +334,8 @@
       }
 
       var orderInput = document.getElementById('orderNumber');
-      var courierInput = document.getElementById('courierName');
-      var courier = courierInput.value;
+      var courierSelect = document.getElementById('courierName');
+      var courier = courierSelect.value;
       var resiString = orderInput.value.replace(/\n/g, ', ');
 
       if (!orderInput.value.trim()) { showStatus('error', 'Resi kosong!'); return; }
@@ -339,7 +345,9 @@
       var base64Data = "";
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
-      var MAX_WIDTH = 360; 
+      
+      // 🎯 OPTIMASI SEIMBANG: Lebar 640px & Kualitas 0.45 (Jelas Dibaca, Ukuran File Tetap Ringan)
+      var MAX_WIDTH = 640; 
 
       if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
         var scaleSize = MAX_WIDTH / video.videoWidth;
@@ -347,7 +355,7 @@
         canvas.height = video.videoHeight * scaleSize;
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         applyWatermark(canvas, ctx, resiString, courier, activePIC);
-        base64Data = canvas.toDataURL('image/jpeg', 0.2);
+        base64Data = canvas.toDataURL('image/jpeg', 0.45);
         stopCamera(); 
       } 
       else if (fallbackImageObj) { 
@@ -356,40 +364,47 @@
         canvas.height = fallbackImageObj.height * scaleSize;
         ctx.drawImage(fallbackImageObj, 0, 0, canvas.width, canvas.height);
         applyWatermark(canvas, ctx, resiString, courier, activePIC);
-        base64Data = canvas.toDataURL('image/jpeg', 0.2);
+        base64Data = canvas.toDataURL('image/jpeg', 0.45);
       } 
       else {
         showStatus('error', 'Kamera Mati! Harap foto kurir/resi dulu.');
         return;
       }
 
-      // SINKRON DENGAN PARAMETER APPS SCRIPT KAK SYIFA
+      var btn = document.getElementById('submitBtn');
+      btn.disabled = true; 
+      document.getElementById('btnText').innerText = 'Mengirim Kilat... ⚡'; 
+      showStatus('loading', 'Mengirim Laporan...');
+
       var formData = new URLSearchParams();
       formData.append('orderNumber', resiString);
       formData.append('courierName', courier);
       formData.append('picName', activePIC);
       formData.append('packagePhotoBase64', base64Data);
 
-      // FIRING PENGIRIMAN DI BACKGROUND
       fetch(scriptURL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString()
-      }).catch(err => console.error("Kirim background:", err));
-
-      // ⚡ RESET FORM DAN TAMPILKAN STATUS BERHASIL LANGSUNG (TANPA LOADING)
-      orderInput.value = '';
-      courierInput.value = '';
-      fallbackImageObj = null;
-
-      showStatus('success', '⚡ Terkirim! Siap Scan Berikutnya.');
-      setTimeout(function(){ 
-        document.getElementById('statusMessage').style.display = 'none'; 
-      }, 1500);
+      })
+      .then(() => {
+        showStatus('success', '✅ Laporan & Foto Berhasil Terkirim!'); 
+        orderInput.value = '';
+        courierSelect.value = '';
+        fallbackImageObj = null; 
+        
+        setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 2000);
+        btn.disabled = false; 
+        document.getElementById('btnText').innerText = '📸 Jepret Live & Kirim Report';
+      })
+      .catch(error => { 
+        showStatus('error', '❌ Gagal Mengirim Data!');
+        btn.disabled = false;
+        document.getElementById('btnText').innerText = '📸 Jepret Live & Kirim Report';
+      });
     }
 
-    // PING PACKER DENGAN BEACON IMAGE
     function pingPackerSistem() {
       var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver:");
       if (resiDitunggu === null || resiDitunggu.trim() === "") { return; }

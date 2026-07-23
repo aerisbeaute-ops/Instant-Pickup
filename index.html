@@ -161,7 +161,7 @@
     // 2. URL Backend Scan Packer (Khusus Tembak Alarm Ping)
     const scriptPackerURL = 'https://script.google.com/a/macros/aerisbeaute.com/s/AKfycbxruoG0YNQwoeaQ0qfEoc_ftwCz8CIUtzQSxLP9r-s2v9df9nFd2HglpEUJ8-h4PbUcgw/exec';
 
-    // 3. Email Notifikasi Terkunci
+    // 3. Email Notifikasi
     const targetEmail = 'syifatiara@aerisbeaute.com';
 
     let fallbackImageObj = null; 
@@ -303,7 +303,7 @@
     function applyWatermark(canvas, ctx, resiStr, courier, pic) {
       var ALAMAT_PICKUP = "Gudang AERIS BEAUTE";
       var rectHeight = Math.round(canvas.height * 0.22); 
-      if (rectHeight < 130) rectHeight = 130;
+      if (rectHeight < 120) rectHeight = 120;
       
       ctx.fillStyle = "rgba(0, 0, 0, 0.78)";
       ctx.fillRect(0, canvas.height - rectHeight, canvas.width, rectHeight);
@@ -312,18 +312,18 @@
       var waktu = now.toLocaleDateString('id-ID') + ' ' + now.toLocaleTimeString('id-ID');
       if(resiStr.length > 55) { resiStr = resiStr.substring(0, 52) + "..."; }
 
-      var fontSize = Math.round(canvas.width * 0.035);
-      if (fontSize < 18) fontSize = 18;
+      var fontSize = Math.round(canvas.width * 0.036);
+      if (fontSize < 17) fontSize = 17;
 
       ctx.fillStyle = "#FFFFFF";
       ctx.font = "bold " + fontSize + "px Arial"; 
-      ctx.fillText("WAKTU   : " + waktu, 18, canvas.height - (rectHeight * 0.72));
-      ctx.fillText("LOKASI : " + ALAMAT_PICKUP, 18, canvas.height - (rectHeight * 0.52));
-      ctx.fillText("RESI      : " + resiStr, 18, canvas.height - (rectHeight * 0.32));
+      ctx.fillText("WAKTU   : " + waktu, 16, canvas.height - (rectHeight * 0.72));
+      ctx.fillText("LOKASI : " + ALAMAT_PICKUP, 16, canvas.height - (rectHeight * 0.52));
+      ctx.fillText("RESI      : " + resiStr, 16, canvas.height - (rectHeight * 0.32));
       
       ctx.fillStyle = "#FDE047"; 
       ctx.font = "bold " + fontSize + "px Arial";
-      ctx.fillText("PIC: " + pic + "  |  KURIR: " + courier, 18, canvas.height - (rectHeight * 0.12));
+      ctx.fillText("PIC: " + pic + "  |  KURIR: " + courier, 16, canvas.height - (rectHeight * 0.12));
     }
 
     function prosesJepretDanKirim() {
@@ -346,8 +346,8 @@
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
       
-      // OPTIMASI GAMBAR: 640px & Kualitas 0.45 (Jelas dibaca & tidak burem)
-      var MAX_WIDTH = 640; 
+      // ⚡ OPTIMASI KILAT & JELAS: 500px Lebar + 0.3 Kompresi (Ukuran File SANGAT RINGAN < 80 KB)
+      var MAX_WIDTH = 500; 
 
       if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
         var scaleSize = MAX_WIDTH / video.videoWidth;
@@ -355,7 +355,7 @@
         canvas.height = video.videoHeight * scaleSize;
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         applyWatermark(canvas, ctx, resiString, courier, activePIC);
-        base64Data = canvas.toDataURL('image/jpeg', 0.45);
+        base64Data = canvas.toDataURL('image/jpeg', 0.3);
         stopCamera(); 
       } 
       else if (fallbackImageObj) { 
@@ -364,7 +364,7 @@
         canvas.height = fallbackImageObj.height * scaleSize;
         ctx.drawImage(fallbackImageObj, 0, 0, canvas.width, canvas.height);
         applyWatermark(canvas, ctx, resiString, courier, activePIC);
-        base64Data = canvas.toDataURL('image/jpeg', 0.45);
+        base64Data = canvas.toDataURL('image/jpeg', 0.3);
       } 
       else {
         showStatus('error', 'Kamera Mati! Harap foto kurir/resi dulu.');
@@ -376,7 +376,6 @@
       document.getElementById('btnText').innerText = 'Mengirim Kilat... ⚡'; 
       showStatus('loading', 'Mengirim Laporan...');
 
-      // PAYLOAD LENGKAP: Mengirim Data Resi, Kurir, PIC, Foto, dan EMAIL KAK SYIFA
       var formData = new URLSearchParams();
       formData.append('orderNumber', resiString);
       formData.append('courierName', courier);
@@ -391,7 +390,7 @@
         body: formData.toString()
       })
       .then(() => {
-        showStatus('success', '✅ Laporan, Foto & Notif Email Berhasil Terkirim!'); 
+        showStatus('success', '✅ Laporan & Foto Berhasil Terkirim!'); 
         orderInput.value = '';
         courierSelect.value = '';
         fallbackImageObj = null; 

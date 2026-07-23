@@ -319,7 +319,7 @@
       ctx.fillText("PIC: " + pic + "  |  KURIR: " + courier, 15, canvas.height - 20);
     }
 
-    // SUBMIT REPORT SUPER KILAT (< 1-2 DETIK)
+    // SUBMIT TANPA TULISAN "MENGIRIM LAPORAN", FORM LANGSUNG BERSIH INSTAN
     function prosesJepretDanKirim() {
       var activePIC = localStorage.getItem('aeris_pic_name');
       if (!activePIC) {
@@ -328,7 +328,8 @@
       }
 
       var orderInput = document.getElementById('orderNumber');
-      var courier = document.getElementById('courierName').value;
+      var courierInput = document.getElementById('courierName');
+      var courier = courierInput.value;
       var resiString = orderInput.value.replace(/\n/g, ', ');
 
       if (!orderInput.value.trim()) { showStatus('error', 'Resi kosong!'); return; }
@@ -338,8 +339,6 @@
       var base64Data = "";
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
-      
-      // OPTIMASI: Ukuran 360px (Super Ringan & Tetap Jelas)
       var MAX_WIDTH = 360; 
 
       if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
@@ -348,8 +347,6 @@
         canvas.height = video.videoHeight * scaleSize;
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         applyWatermark(canvas, ctx, resiString, courier, activePIC);
-        
-        // Kompresi JPEG ke 0.2
         base64Data = canvas.toDataURL('image/jpeg', 0.2);
         stopCamera(); 
       } 
@@ -359,8 +356,6 @@
         canvas.height = fallbackImageObj.height * scaleSize;
         ctx.drawImage(fallbackImageObj, 0, 0, canvas.width, canvas.height);
         applyWatermark(canvas, ctx, resiString, courier, activePIC);
-        
-        // Kompresi JPEG ke 0.2
         base64Data = canvas.toDataURL('image/jpeg', 0.2);
       } 
       else {
@@ -368,41 +363,33 @@
         return;
       }
 
-      var btn = document.getElementById('submitBtn');
-      btn.disabled = true; 
-      document.getElementById('btnText').innerText = 'Mengirim Kilat... ⚡'; 
-      showStatus('loading', 'Mengirim Laporan...');
-
+      // SINKRON DENGAN PARAMETER APPS SCRIPT KAK SYIFA
       var formData = new URLSearchParams();
       formData.append('orderNumber', resiString);
       formData.append('courierName', courier);
       formData.append('picName', activePIC);
       formData.append('packagePhotoBase64', base64Data);
 
+      // FIRING PENGIRIMAN DI BACKGROUND
       fetch(scriptURL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString()
-      })
-      .then(() => {
-        showStatus('success', '✅ Laporan & Foto Berhasil Terkirim!'); 
-        document.getElementById('orderNumber').value = '';
-        document.getElementById('courierName').value = '';
-        fallbackImageObj = null; 
-        
-        setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 2000);
-        btn.disabled = false; 
-        document.getElementById('btnText').innerText = '📸 Jepret Live & Kirim Report';
-      })
-      .catch(error => { 
-        showStatus('error', '❌ Gagal Mengirim Data!');
-        btn.disabled = false;
-        document.getElementById('btnText').innerText = '📸 Jepret Live & Kirim Report';
-      });
+      }).catch(err => console.error("Kirim background:", err));
+
+      // ⚡ RESET FORM DAN TAMPILKAN STATUS BERHASIL LANGSUNG (TANPA LOADING)
+      orderInput.value = '';
+      courierInput.value = '';
+      fallbackImageObj = null;
+
+      showStatus('success', '⚡ Terkirim! Siap Scan Berikutnya.');
+      setTimeout(function(){ 
+        document.getElementById('statusMessage').style.display = 'none'; 
+      }, 1500);
     }
 
-    // PING PACKER DENGAN BEACON IMAGE (Mandiri, Tembak Langsung ke Backend Scan Packer)
+    // PING PACKER DENGAN BEACON IMAGE
     function pingPackerSistem() {
       var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver:");
       if (resiDitunggu === null || resiDitunggu.trim() === "") { return; }

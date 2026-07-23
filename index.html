@@ -155,11 +155,11 @@
   <script>
     feather.replace();
     
-    // URL Backend Instant Pickup (Untuk Submit Database & Foto)
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxu256ZC1tMi1QQg02XBAbo0jFGSMVIO-X5bGug5BIFrLadai71_GK-lgDvcJSA0Jpo/exec'; 
+    // 1. URL Backend Instant Pickup (Untuk Submit Database & Foto)
+    const scriptURL = 'https://script.google.com/a/macros/aerisbeaute.com/s/AKfycbxruoG0YNQwoeaQ0qfEoc_ftwCz8CIUtzQSxLP9r-h4PbUcgw/exec'; 
     
-    // URL Backend Scan Packer (Khusus Tembak Alarm Ping)
-    const scriptPackerURL = 'https://script.google.com/macros/s/AKfycbxruoG0YNQwoeaQ0qfEoc_ftwCz8CIUtzQSxLP9r-s2v9df9nFd2HglpEUJ8-h4PbUcgw/exec';
+    // 2. URL Backend Scan Packer (Khusus Tembak Alarm Ping)
+    const scriptPackerURL = 'https://script.google.com/a/macros/aerisbeaute.com/s/AKfycbxruoG0YNQwoeaQ0qfEoc_ftwCz8CIUtzQSxLP9r-s2v9df9nFd2HglpEUJ8-h4PbUcgw/exec';
 
     let fallbackImageObj = null; 
     let html5QrCode;
@@ -319,26 +319,27 @@
       ctx.fillText("PIC: " + pic + "  |  KURIR: " + courier, 15, canvas.height - 20);
     }
 
-    // SUBMIT REPORT MENGGUNAKAN FORM-DATA (Bebas Error CORS / Payload)
+    // SUBMIT KILAT BACKGROUND (ZERO-WAIT FOR PIC)
     function prosesJepretDanKirim() {
       var activePIC = localStorage.getItem('aeris_pic_name');
-      if(!activePIC) {
+      if (!activePIC) {
         showStatus('error', '🚨 Harap Login Nama PIC kamu terlebih dahulu!');
         return;
       }
 
       var orderInput = document.getElementById('orderNumber');
-      var courier = document.getElementById('courierName').value;
+      var courierSelect = document.getElementById('courierName');
       var resiString = orderInput.value.replace(/\n/g, ', ');
+      var courier = courierSelect.value;
 
-      if(!orderInput.value.trim()) { showStatus('error', 'Resi kosong!'); return; }
-      if(!courier) { showStatus('error', 'Pilih Kurir terlebih dahulu!'); return; }
+      if (!orderInput.value.trim()) { showStatus('error', 'Resi kosong!'); return; }
+      if (!courier) { showStatus('error', 'Pilih Kurir terlebih dahulu!'); return; }
 
       var video = document.querySelector('#reader video');
       var base64Data = "";
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
-      var MAX_WIDTH = 500; 
+      var MAX_WIDTH = 360; 
 
       if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
         var scaleSize = MAX_WIDTH / video.videoWidth;
@@ -346,8 +347,7 @@
         canvas.height = video.videoHeight * scaleSize;
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         applyWatermark(canvas, ctx, resiString, courier, activePIC);
-        base64Data = canvas.toDataURL('image/jpeg', 0.35);
-        stopCamera(); 
+        base64Data = canvas.toDataURL('image/jpeg', 0.2);
       } 
       else if (fallbackImageObj) { 
         var scaleSize = MAX_WIDTH / fallbackImageObj.width;
@@ -355,49 +355,42 @@
         canvas.height = fallbackImageObj.height * scaleSize;
         ctx.drawImage(fallbackImageObj, 0, 0, canvas.width, canvas.height);
         applyWatermark(canvas, ctx, resiString, courier, activePIC);
-        base64Data = canvas.toDataURL('image/jpeg', 0.35);
+        base64Data = canvas.toDataURL('image/jpeg', 0.2);
       } 
       else {
         showStatus('error', 'Kamera Mati! Harap foto kurir/resi dulu.');
         return;
       }
 
-      var btn = document.getElementById('submitBtn');
-      btn.disabled = true; 
-      document.getElementById('btnText').innerText = 'Mengirim Kilat... ⚡'; 
-      showStatus('loading', 'Mengirim Laporan...');
-
-      // Menggunakan URLSearchParams agar terbaca sebagai e.parameter secara Native oleh Google
       var formData = new URLSearchParams();
       formData.append('orderNumber', resiString);
       formData.append('courierName', courier);
       formData.append('picName', activePIC);
       formData.append('packagePhotoBase64', base64Data);
 
+      // RESET UI SPONTAN (0 DETIK WAIT)
+      orderInput.value = '';
+      courierSelect.value = '';
+      fallbackImageObj = null; 
+      stopCamera();
+
+      showStatus('success', '⚡ Terkirim ke Antrean Backend!');
+      setTimeout(function(){ 
+        document.getElementById('statusMessage').style.display = 'none'; 
+      }, 1500);
+
+      // FIRING REQUEST DI BACKGROUND
       fetch(scriptURL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString()
-      })
-      .then(() => {
-        showStatus('success', '✅ Laporan & Foto Berhasil Terkirim!'); 
-        document.getElementById('orderNumber').value = '';
-        document.getElementById('courierName').value = '';
-        fallbackImageObj = null; 
-        
-        setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 3000);
-        btn.disabled = false; 
-        document.getElementById('btnText').innerText = '📸 Jepret Live & Kirim Report';
-      })
-      .catch(error => { 
-        showStatus('error', '❌ Gagal Mengirim Data!');
-        btn.disabled = false;
-        document.getElementById('btnText').innerText = '📸 Jepret Live & Kirim Report';
+      }).catch(function(error) { 
+        console.error('Background send error:', error);
       });
     }
 
-    // PING PACKER DENGAN BEACON IMAGE (Mandiri, tidak menyentuh Backend Instant sama sekali)
+    // PING PACKER DENGAN BEACON IMAGE
     function pingPackerSistem() {
       var resiDitunggu = prompt("🚨 PANGGIL PACKER\n\nKetik nomor order/resi yang sedang ditunggu driver:");
       if (resiDitunggu === null || resiDitunggu.trim() === "") { return; }

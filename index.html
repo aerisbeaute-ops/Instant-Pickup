@@ -61,7 +61,7 @@
     .packer-reply-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 10000; padding: 20px; box-sizing: border-box; }
     .packer-reply-box { background: white; width: 100%; max-width: 380px; border-radius: 20px; padding: 24px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 3px solid #10B981; animation: popIn 0.3s ease; }
     @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .packer-reply-box i { width: 48px; height: 48px; color: #10B981; margin-bottom: 12px; }
+    .packer-reply-box svg { width: 48px; height: 48px; color: #10B981; margin-bottom: 12px; }
     .packer-reply-box h3 { margin: 0 0 8px 0; font-size: 18px; font-weight: 800; color: #065F46; }
     .packer-reply-box p { margin: 0 0 16px 0; font-size: 13px; color: #334155; font-weight: 600; line-height: 1.4; }
     .packer-reply-box button { width: 100%; padding: 12px; background: #10B981; color: white; border: none; border-radius: 50px; font-weight: 800; font-size: 14px; cursor: pointer; }
@@ -73,7 +73,7 @@
     <i data-feather="check-circle"></i> Berhasil!
   </div>
 
-  <!-- MODAL NOTIFIKASI BALASAN TIM PACKER -->
+  <!-- MODAL BALASAN PACKER -->
   <div id="packerReplyModal" class="packer-reply-modal">
     <div class="packer-reply-box">
       <i data-feather="check-circle"></i>
@@ -177,7 +177,7 @@
     // 1. URL Backend Instant Pickup
     const scriptURL = 'https://script.google.com/macros/s/AKfycbxu256ZC1tMi1QQg02XBAbo0jFGSMVIO-X5bGug5BIFrLadai71_GK-lgDvcJSA0Jpo/exec'; 
     
-    // 2. URL Backend Scan Packer
+    // 2. URL Backend Scan Packer (Pastikan Menggunakan URL Web App Terbaru!)
     const scriptPackerURL = 'https://script.google.com/macros/s/AKfycbxruoG0YNQwoeaQ0qfEoc_ftwCz8CIUtzQSxLP9r-s2v9df9nFd2HglpEUJ8-h4PbUcgw/exec';
 
     // 3. Email Notifikasi
@@ -195,7 +195,7 @@
 
     window.onload = function() { 
       cekLoginPIC(); 
-      // Jalankan Polling Cek Respon Packer Setiap 2 Detik
+      // Jalankan Cek Balasan Packer Tiap 2 Detik
       setInterval(cekBalasanPacker, 2000);
     };
 
@@ -449,25 +449,31 @@
       }, 600);
     }
 
-    // FUNGSI CEK BALASAN DARI TIM PACKER (POLLING BACKGROUND)
+    // FUNGSI CEK BALASAN PACKER VIA JSONP (TEMBUS CORS 100%)
     function cekBalasanPacker() {
-      fetch(scriptPackerURL + '?action=check_ack&rand=' + Math.random())
-        .then(res => res.text())
-        .then(txt => {
-          if (txt && txt !== "NONE") {
-            document.getElementById('packerReplyText').innerText = "Paket resi [" + txt + "] sedang disiapkan & dicarikan oleh Tim Packer!";
-            document.getElementById('packerReplyModal').style.display = 'flex';
-            feather.replace();
+      var callbackName = 'handlePackerAck_' + Math.floor(Math.random() * 100000);
+      
+      window[callbackName] = function(data) {
+        if (data && data !== "NONE") {
+          document.getElementById('packerReplyText').innerText = "Paket resi [" + data + "] sedang disiapkan & dicarikan oleh Tim Packer!";
+          document.getElementById('packerReplyModal').style.display = 'flex';
+          feather.replace();
 
-            // Bunyi suara notifikasi balasan
-            if ('speechSynthesis' in window) {
-              var utterance = new SpeechSynthesisUtterance("Paket sedang disiapkan tim packer");
-              utterance.lang = 'id-ID'; utterance.rate = 1.3;
-              window.speechSynthesis.speak(utterance);
-            }
+          if ('speechSynthesis' in window) {
+            var utterance = new SpeechSynthesisUtterance("Paket sedang disiapkan tim packer");
+            utterance.lang = 'id-ID'; utterance.rate = 1.3;
+            window.speechSynthesis.speak(utterance);
           }
-        })
-        .catch(err => console.log(err));
+        }
+        var oldScript = document.getElementById(callbackName);
+        if(oldScript) oldScript.remove();
+        delete window[callbackName];
+      };
+
+      var script = document.createElement('script');
+      script.id = callbackName;
+      script.src = scriptPackerURL + '?action=check_ack_jsonp&callback=' + callbackName + '&rand=' + Math.random();
+      document.body.appendChild(script);
     }
 
     function tutupNotifPacker() {

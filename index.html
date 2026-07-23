@@ -158,6 +158,7 @@
           <select id="courierName" name="courierName" required>
             <option value="">-- Pilih Ekspedisi --</option>
             <option value="Shopee Express">Shopee Express</option>
+            <option value="Antaraja">Antaraja</option>
             <option value="Gojek">Gojek</option>
             <option value="Grab">Grab</option>
             <option value="Lalamove">Lalamove</option>
@@ -233,7 +234,8 @@
       var orderTextArea = document.getElementById('orderNumber');
       if (!orderTextArea.value.includes(decodedText)) {
         if (decodedText.startsWith('260')) { document.getElementById('courierName').value = 'Shopee Express'; } 
-        else if (decodedText.startsWith('568')) { document.getElementById('courierName').value = 'Gojek'; }
+        else if (decodedText.startsWith('58')) { document.getElementById('courierName').value = 'Gojek'; }
+        else if (decodedText.startsWith('TSA')) { document.getElementById('courierName').value = 'Antaraja'; }
 
         orderTextArea.value = orderTextArea.value === "" ? decodedText : orderTextArea.value + "\n" + decodedText;
         

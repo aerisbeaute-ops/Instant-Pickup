@@ -362,7 +362,7 @@
       ctx.fillText("PIC: " + pic + "  |  KURIR: " + courier, 16, canvas.height - (rectHeight * 0.12));
     }
 
-    // SUBMIT ASYNC OPTIMISTIK (RESPONSE INSTAN 0.1 DETIK)
+    // ⚡ PROSES ZERO-WAIT (LANGSUNG KOSONG DALAM 0.1 DETIK)
     function prosesJepretDanKirim() {
       var activePIC = localStorage.getItem('aeris_pic_name');
       if (!activePIC) {
@@ -383,7 +383,6 @@
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
       
-      // QUALITY TETAP SAMA PERSIS (500px & 0.3)
       var MAX_WIDTH = 500; 
 
       if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
@@ -408,7 +407,7 @@
         return;
       }
 
-      // 1. PACK PAYLOAD DATA
+      // 1. RAKIT FORM DATA
       var formData = new URLSearchParams();
       formData.append('orderNumber', resiString);
       formData.append('courierName', courier);
@@ -416,7 +415,7 @@
       formData.append('emailTarget', targetEmail);
       formData.append('packagePhotoBase64', base64Data);
 
-      // 2. EMBAT FETCH KE BACKGROUND
+      // 2. TEMBAK FETCH BACKGROUND Latar Belakang
       fetch(scriptURL, {
         method: 'POST',
         mode: 'no-cors',
@@ -426,15 +425,16 @@
         console.error('Background upload error:', error);
       });
 
-      // 3. OPTIMISTIC UI: LANGSUNG NOTIFIKASI SUKSES & BERSIHKAN FORM DITINGGAL KILAT
-      showStatus('success', '✅ Laporan & Foto Berhasil Terkirim!'); 
+      // 3. ZERO-WAIT RESET: KOSONGKAN FORM SEKETIKA (0 DETIK LOADING)
       orderInput.value = '';
       courierSelect.value = '';
       fallbackImageObj = null; 
-      
+
+      // STATUS HIJAU MUNCUL 1.5 DETIK TANPA MENAHAN TOMBOL
+      showStatus('success', '✅ Laporan & Foto Berhasil Terkirim!'); 
       setTimeout(function(){ 
         document.getElementById('statusMessage').style.display = 'none'; 
-      }, 1800);
+      }, 1500);
     }
 
     function pingPackerSistem() {

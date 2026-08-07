@@ -153,7 +153,7 @@
           <textarea id="orderNumber" class="giant-input" name="orderNumber" required placeholder="Hasil scan masuk ke sini..."></textarea>
         </div>
 
-        <!-- DROPDOWN KURIR DENGAN ANTERAJA -->
+        <!-- DROPDOWN KURIR -->
         <div class="form-group">
           <label for="courierName"><i data-feather="truck"></i> Kurir</label>
           <select id="courierName" name="courierName" required>
@@ -235,13 +235,15 @@
       var orderTextArea = document.getElementById('orderNumber');
       if (!orderTextArea.value.includes(decodedText)) {
         
-        if (decodedText.startsWith('260')) { 
+        var upperResi = decodedText.trim().toUpperCase();
+
+        if (upperResi.startsWith('260')) { 
           document.getElementById('courierName').value = 'Shopee Express'; 
         } 
-        else if (decodedText.startsWith('58')) { 
+        else if (upperResi.startsWith('58')) { 
           document.getElementById('courierName').value = 'Gojek'; 
         }
-        else if (decodedText.toUpperCase().startsWith('TSA')) { 
+        else if (upperResi.startsWith('TSA')) { 
           document.getElementById('courierName').value = 'Anteraja'; 
         }
 
@@ -360,6 +362,7 @@
       ctx.fillText("PIC: " + pic + "  |  KURIR: " + courier, 16, canvas.height - (rectHeight * 0.12));
     }
 
+    // SUBMIT ASYNC OPTIMISTIK (RESPONSE INSTAN 0.1 DETIK)
     function prosesJepretDanKirim() {
       var activePIC = localStorage.getItem('aeris_pic_name');
       if (!activePIC) {
@@ -380,6 +383,7 @@
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
       
+      // QUALITY TETAP SAMA PERSIS (500px & 0.3)
       var MAX_WIDTH = 500; 
 
       if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
@@ -404,11 +408,7 @@
         return;
       }
 
-      var btn = document.getElementById('submitBtn');
-      btn.disabled = true; 
-      document.getElementById('btnText').innerText = 'Mengirim Kilat... ⚡'; 
-      showStatus('loading', 'Mengirim Laporan...');
-
+      // 1. PACK PAYLOAD DATA
       var formData = new URLSearchParams();
       formData.append('orderNumber', resiString);
       formData.append('courierName', courier);
@@ -416,27 +416,25 @@
       formData.append('emailTarget', targetEmail);
       formData.append('packagePhotoBase64', base64Data);
 
+      // 2. EMBAT FETCH KE BACKGROUND
       fetch(scriptURL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString()
-      })
-      .then(() => {
-        showStatus('success', '✅ Laporan & Foto Berhasil Terkirim!'); 
-        orderInput.value = '';
-        courierSelect.value = '';
-        fallbackImageObj = null; 
-        
-        setTimeout(function(){ document.getElementById('statusMessage').style.display = 'none'; }, 2000);
-        btn.disabled = false; 
-        document.getElementById('btnText').innerText = '📸 Jepret Live & Kirim Report';
-      })
-      .catch(error => { 
-        showStatus('error', '❌ Gagal Mengirim Data!');
-        btn.disabled = false;
-        document.getElementById('btnText').innerText = '📸 Jepret Live & Kirim Report';
+      }).catch(function(error) {
+        console.error('Background upload error:', error);
       });
+
+      // 3. OPTIMISTIC UI: LANGSUNG NOTIFIKASI SUKSES & BERSIHKAN FORM DITINGGAL KILAT
+      showStatus('success', '✅ Laporan & Foto Berhasil Terkirim!'); 
+      orderInput.value = '';
+      courierSelect.value = '';
+      fallbackImageObj = null; 
+      
+      setTimeout(function(){ 
+        document.getElementById('statusMessage').style.display = 'none'; 
+      }, 1800);
     }
 
     function pingPackerSistem() {

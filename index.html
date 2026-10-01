@@ -230,14 +230,14 @@
       }
     }
 
-    // AUTO SELECT KURIR DENGAN PREFIX 260, 58, DAN TSA
+    // AUTO SELECT KURIR DENGAN PREFIX 26, 58, DAN TSA
     function triggerSuksesScan(decodedText) {
       var orderTextArea = document.getElementById('orderNumber');
       if (!orderTextArea.value.includes(decodedText)) {
         
         var upperResi = decodedText.trim().toUpperCase();
 
-        if (upperResi.startsWith('260')) { 
+        if (upperResi.startsWith('26')) { 
           document.getElementById('courierName').value = 'Shopee Express'; 
         } 
         else if (upperResi.startsWith('58')) { 
